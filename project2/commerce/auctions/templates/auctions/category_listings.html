@@ -1,0 +1,39 @@
+{% extends 'auctions/layout.html' %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'auctions/links.css' %}">
+{% endblock styles %}
+
+{% block nav %}
+{% include 'auctions/nav_snippet.html' with link1="active" %}
+{% endblock nav %}
+
+{% block body %}
+
+<div class="row">
+
+  {% for listing in listings %}
+
+  {% if forloop.counter0 == 0 or forloop.counter0|divisibleby:'10' %}
+  <div class="col-4">
+    <div class="list-group">
+      {% endif %}
+
+      <a class="list-group-item list-group-item-action mb-2"
+         href="{% url 'auctions:detail_listing' listing.id %}">{{ listing.title }}</a>
+
+      {% if forloop.counter|divisibleby:'10' %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% empty %}
+  <h4>No listings for {{ name }}</h4>
+  {% endfor %}
+
+</div>
+
+
+
+{% endblock body %}

@@ -1,0 +1,30 @@
+{
+  "folders": [
+    {
+      "name": "CS50 Web",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "python.analysis.extraPaths": [
+      "Django/lecture3",
+      "Django/airline",
+      "project1/wiki",
+      "project2/commerce"
+    ],
+    "files.associations": {
+      "**/*.html": "html",
+      "**/templates/**/*.html": "django-html",
+      "**/templates/**/*": "django-txt",
+      "**/requirements{/**,*}.{txt,in}": "pip-requirements"
+    },
+    "emmet.includeLanguages": {
+      "django-html": "html"
+    },
+    "editor.autoClosingBrackets": "always",
+    "window.zoomLevel": 1,
+    "customizeUI.fontSizeMap": {
+      "13px": "15px",
+    }
+  }
+}

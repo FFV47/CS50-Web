@@ -1,0 +1,84 @@
+// Include custom variable default overrides here
+
+@import "../bootstrap/scss/bootstrap.scss";
+
+body {
+	width: 100%;
+	background-color: $gray-100;
+}
+
+header {
+	margin-bottom: 1rem;
+	padding: 1rem;
+	color: white;
+	background-color: $teal;
+
+	.title {
+		font-size: 3.5rem;
+	}
+
+	.user {
+		font-size: 1.1rem;
+	}
+}
+
+nav {
+	margin-top: 1rem;
+	.nav-link {
+		color: white;
+
+		&:hover,
+		&.active:hover {
+			color: rebeccapurple;
+		}
+	}
+}
+
+.listing-img {
+	width: 300px;
+	height: 300px;
+	display: flex;
+	align-items: center;
+
+	img {
+		max-width: 100%;
+		max-height: 100%;
+		object-fit: scale-down;
+	}
+
+	&.detail {
+		width: 500px;
+		height: 500px;
+	}
+
+	&.detail.edit {
+		background-color: white;
+		padding: 1rem;
+		border-radius: 1rem;
+		box-shadow: 1px 1px 10px 2px $gray-400, -1px -1px 10px 2px $gray-400;
+	}
+}
+
+.errorlist {
+	color: crimson;
+	list-style-type: none;
+	padding-left: 0.5rem;
+	margin-top: 0.8rem;
+}
+
+#listing-card {
+	border-radius: 1rem;
+	border-width: 2px;
+	border-color: $gray-500;
+
+	&:hover {
+		border-color: $cyan;
+	}
+
+	#price-tag {
+		font-size: 1.5rem;
+		font-weight: bold;
+		border-radius: 2rem;
+		text-align: center;
+	}
+}

@@ -1,0 +1,40 @@
+{% extends 'auctions/layout.html' %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'auctions/forms.css' %}">
+{% endblock styles %}
+
+{% block scripts %}
+<script src="{% static 'auctions/labelUpdate.js' %}" defer></script>
+{% endblock scripts %}
+
+{% block nav %}
+{% include 'auctions/nav_snippet.html' with link3="active" %}
+{% endblock nav %}
+
+{% block body %}
+
+<h2 class="text-center">Listing: {{ listing.title }}</h2>
+
+<p class="text-center">Current Listing Image</p>
+<div class="row justify-content-center mb-5">
+  <div class="listing-img detail edit">
+    {% if listing.image %}
+    <img src="{{ listing.image }}" alt="Listing Image">
+    {% else %}
+    <img src="{% static 'auctions/default.jpg' %}" alt="Listing Image">
+    {% endif %}
+  </div>
+</div>
+
+<form enctype='multipart/form-data' action="{% url 'auctions:edit_listing' listing.id %}"
+      method="post">
+  {% csrf_token %}
+  {% include 'auctions/form_snippet_listing.html' %}
+  <div class="row mt-5 mb-5 justify-content-center">
+    <input class="btn btn-primary" type="submit" value="Update Listing">
+  </div>
+</form>
+
+{% endblock body %}

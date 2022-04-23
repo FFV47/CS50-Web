@@ -1,0 +1,24 @@
+{% extends 'auctions/layout.html' %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'auctions/forms.css' %}">
+{% endblock styles %}
+
+{% block scripts %}
+<script src="{% static 'auctions/labelUpdate.js' %}" defer></script>
+{% endblock scripts %}
+
+{% block nav %}
+{% include 'auctions/nav_snippet.html' with link3="active" %}
+{% endblock nav %}
+
+{% block body %}
+<form enctype='multipart/form-data' action="{% url 'auctions:new_listing' %}" method="post">
+  {% csrf_token %}
+  {% include 'auctions/form_snippet_listing.html' %}
+  <div class="row mt-5 mb-5 justify-content-center">
+    <input class="btn btn-primary" type="submit" value="Submit New Listing">
+  </div>
+</form>
+{% endblock body %}

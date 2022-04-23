@@ -1,0 +1,41 @@
+textarea {
+	min-height: 200px;
+}
+
+#header-buttons > * {
+  font-size: 1.1rem;
+}
+
+#response-error {
+	font-size: 1.1rem;
+}
+
+#response-success {
+	font-size: 1.5rem;
+	height: max-content;
+	padding: 1rem 0;
+}
+
+#emails-view,
+#compose-view {
+	margin-bottom: 5rem;
+}
+
+#empty {
+	font-size: 1.5rem;
+}
+
+#reader-body {
+	white-space: pre-wrap;
+	font: inherit;
+}
+
+.list-group-item:hover {
+	color: white;
+	background-color: #007bff;
+}
+
+.list-group-item.list-group-item-secondary:hover {
+	color: white;
+	background-color: #007bff;
+}

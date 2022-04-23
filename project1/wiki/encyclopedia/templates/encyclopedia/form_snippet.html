@@ -1,0 +1,20 @@
+{% load wiki_filters %}
+
+{# Include the hidden fields #}
+{% for hidden in form.hidden_fields %}
+{{ hidden }}
+{% endfor %}
+
+{# Include the visible fields #}
+{% for field in form.visible_fields %}
+<div class="form-group">
+
+  {{ field.errors }}
+  {{ field.label_tag }}
+  {{ field | add_class:'form-control'}}
+
+  {% if field.help_text %}
+  <small class="form-text text-muted">{{ field.help_text | safe }}</small>
+  {% endif %}
+</div>
+{% endfor %}

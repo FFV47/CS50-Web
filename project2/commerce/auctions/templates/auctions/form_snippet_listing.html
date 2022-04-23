@@ -1,0 +1,42 @@
+{% load wiki_filters %}
+
+{# Include the hidden fields #}
+{% for hidden in form.hidden_fields %}
+{{ hidden }}
+{% endfor %}
+
+{# Include the visible fields #}
+{% for field in form.visible_fields %}
+<div class="form-group row justify-content-center">
+
+  <label class="col-2 col-form-label" for="{{ field.id_for_label }}">
+    {{ field.label }}
+  </label>
+
+  {% comment %} FORM FOR IMAGE UPLOAD {% endcomment %}
+  {% comment %} {% if forloop.last %}
+
+  <div class="custom-file col-6">
+    {{ field | add_class:"custom-file-input" }}
+    <label class="custom-file-label" for="{{ field.id_for_label }}"
+           id="label_image">Choose
+      file</label>
+    {% if field.help_text %}
+    <small class="form-text text-muted">{{ field.help_text | safe }}</small>
+    {% endif %}
+  </div>
+
+  {% else %} {% endcomment %}
+
+  <div class="col-6">
+    {{ field | add_class:"form-control"}}
+    {% if field.help_text %}
+    <small class="form-text text-muted">{{ field.help_text | safe }}</small>
+    {% endif %}
+    {{ field.errors }}
+  </div>
+
+  {% comment %} {% endif %} {% endcomment %}
+
+</div>
+{% endfor %}

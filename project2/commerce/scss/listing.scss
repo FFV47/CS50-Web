@@ -1,0 +1,58 @@
+@import "main.scss";
+
+.card {
+	box-shadow: 1px 1px 10px 2px $gray-400, -1px -1px 10px 2px $gray-400;
+
+	:first-child {
+		margin-bottom: 0.25rem;
+	}
+
+	&.comment {
+		padding: 1rem;
+	}
+
+	hr {
+		border-color: $gray-500;
+		border-width: 3px;
+		margin-top: 0;
+		margin-bottom: 0.5rem;
+	}
+}
+
+.list-group {
+	:nth-child(n) {
+		border-bottom-width: 2px;
+		border-bottom-color: black;
+	}
+}
+
+.winner {
+	color: $green;
+	font-size: 1.1rem;
+	font-size: bold;
+}
+
+.match-bidder {
+	color: $orange;
+	font-size: 1.1rem;
+	font-weight: 600;
+}
+
+.bid-input {
+  flex-wrap: nowrap;
+  align-items: center;
+
+  :first-child {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-right: 5px;
+    margin-bottom: 0;
+  }
+}
+
+#detail-price-tag {
+  border-radius: 1rem;
+	font-size: 1.5rem;
+	text-align: center;
+	font-weight: bold;
+}

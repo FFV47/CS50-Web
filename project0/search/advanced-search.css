@@ -1,0 +1,140 @@
+html,
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem;
+  font-size: 13px;
+  background-color: #f1f1f1;
+}
+header img {
+  padding-top: 4px;
+  height: 2.1rem;
+}
+header a {
+  padding: 0.5rem 1rem;
+  display: inline-block;
+  color: #3c4043;
+  text-decoration: none;
+}
+header a:hover {
+  color: inherit;
+  text-decoration: underline;
+}
+
+main {
+  margin-bottom: 50px;
+}
+main > p:first-child {
+  font-size: 20px;
+  color: #d93025;
+  margin: 1.5rem 3rem;
+}
+main hr {
+  color: #777777;
+  margin-bottom: 2.2rem;
+}
+main #form-wrapper {
+  display: flex;
+  flex-flow: row wrap;
+  margin: 1.5rem 3rem;
+}
+main #form-wrapper .form-inputs {
+  max-width: 50%;
+}
+main #form-wrapper .form-description > p {
+  margin-bottom: 1rem;
+}
+main #form-wrapper .form-description strong {
+  color: #777777;
+  font-size: 13px;
+}
+main #form-wrapper .form-description .form-text {
+  font-size: 11px;
+  padding: 0.35rem 1rem;
+  margin-top: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+main #form-wrapper .form-description .form-text code {
+  font-size: 12px;
+  color: inherit;
+}
+main #form-wrapper .form-description .form-text:nth-child(4n) {
+  margin-bottom: 0;
+}
+main #form-wrapper .form-description .form-text:last-child {
+  margin-top: 0.5rem;
+}
+main #form-wrapper form {
+  font-size: 13px;
+}
+main #form-wrapper form input {
+  font-size: inherit;
+}
+main #form-wrapper form .col-3 {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+main #form-wrapper form .form-control {
+  border-radius: 0;
+  padding: 4px 8px;
+  margin-bottom: 0.8rem;
+}
+
+footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid lightgrey;
+  background-color: #f2f2f2;
+  padding: 0.5rem 1rem;
+}
+footer a {
+  padding: 0.5rem 1rem;
+  font-size: 14px;
+  color: #70757a;
+  text-decoration: none;
+}
+footer a:hover {
+  text-decoration: underline;
+}
+
+.page {
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
+}
+
+.extra-links {
+  display: flex;
+  flex-flow: column;
+  margin: 1rem 3rem;
+}
+.extra-links a {
+  font-size: 13px;
+}
+
+.btn.btn-primary {
+  font-size: 11px;
+  font-weight: bold;
+  background-color: #4d90fe;
+}
+.btn.btn-primary:hover {
+  background-color: #4385ee;
+}
+
+/*# sourceMappingURL=advanced-search.css.map */

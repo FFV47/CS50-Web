@@ -1,0 +1,18 @@
+{% extends 'users/layout.html' %}
+
+{% block body %}
+
+<h1>Login View</h1>
+
+
+{% if message %}
+<h3 style='color: red'>{{ message }}</h3>
+{% endif %}
+
+<form action="{% url 'users:login' %}" method="post">
+  {% csrf_token %}
+  {% include 'users/form_snippet.html' %}
+  <input type="submit" value="Login">
+</form>
+
+{% endblock body %}

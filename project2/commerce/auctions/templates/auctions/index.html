@@ -1,0 +1,43 @@
+{% extends "auctions/layout.html" %}
+{% load static %}
+{% block nav %}
+{% include 'auctions/nav_snippet.html' with link0="active" %}
+{% endblock nav %}
+
+{% block body %}
+<h2>Active Listings</h2>
+
+{% for listing in listings %}
+
+{% if forloop.counter0 == 0 or forloop.counter0|divisibleby:'2' %}
+<div class="row mb-5 mt-3 justify-content-around">
+  {% endif %}
+
+  <div class="col-5 card" id="listing-card">
+    <a href="{% url 'auctions:detail_listing' listing.id %}"
+       class="listing-img align-self-center mt-2">
+      {% if listing.image %}
+      <img src="{{ listing.image }}" class="card-img-top" alt="Listing Image">
+      {% else %}
+      <img src="{% static 'auctions/default.jpg' %}" class="card-img-top" alt="Listing Image">
+      {% endif %}
+    </a>
+    <div class="card-body">
+      <h3 class="card-title">
+        <a href="{% url 'auctions:detail_listing' listing.id %}">{{ listing.title }}</a>
+      </h3>
+      <p>{{ listing.description }}</p>
+      <p class="alert alert-dark" id="price-tag">${{ listing.price }}</p>
+      <small class="text-muted d-block mt-2">Listed at {{ listing.pub_date }} by <a
+           href="{% url 'auctions:user_listings' listing.vendor.id %}">{{ listing.vendor }}</a></small>
+    </div>
+  </div>
+
+  {% if forloop.counter|divisibleby:'2' %}
+</div>
+{% endif %}
+
+{% empty %}
+<h2>There is no active listing</h2>
+{% endfor %}
+{% endblock %}

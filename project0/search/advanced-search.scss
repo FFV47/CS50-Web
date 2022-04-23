@@ -1,0 +1,156 @@
+html,
+body {
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0.8rem;
+	font-size: 13px;
+	background-color: #f1f1f1;
+
+	img {
+		padding-top: 4px;
+		height: 2.1rem;
+	}
+
+	a {
+		padding: 0.5rem 1rem;
+		display: inline-block;
+		color: #3c4043;
+		text-decoration: none;
+
+		&:hover {
+			color: inherit;
+			text-decoration: underline;
+		}
+	}
+}
+
+main {
+	margin-bottom: 50px;
+
+	& > p:first-child {
+		font-size: 20px;
+		color: #d93025;
+		margin: 1.5rem 3rem;
+	}
+
+	hr {
+    color: #777777;
+		margin-bottom: 2.2rem;
+	}
+
+	#form-wrapper {
+		display: flex;
+		flex-flow: row wrap;
+		margin: 1.5rem 3rem;
+
+		.form-inputs {
+			max-width: 50%;
+		}
+
+		.form-description {
+			& > p {
+				margin-bottom: 1rem;
+			}
+			strong {
+				color: #777777;
+				font-size: 13px;
+			}
+			.form-text {
+				font-size: 11px;
+				padding: 0.35rem 1rem;
+				margin-top: 0.8rem;
+				margin-bottom: 0.8rem;
+
+				code {
+					font-size: 12px;
+					color: inherit;
+				}
+
+				&:nth-child(4n) {
+					margin-bottom: 0;
+				}
+				&:last-child {
+					margin-top: 0.5rem;
+				}
+			}
+		}
+
+		form {
+      font-size: 13px;
+
+      input {
+        font-size: inherit;
+      }
+
+			.col-3 {
+				display: flex;
+				align-items: center;
+				margin-bottom: 0.8rem;
+			}
+
+			.form-control {
+        border-radius: 0;
+				padding: 4px 8px;
+				margin-bottom: 0.8rem;
+			}
+		}
+	}
+}
+
+footer {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-top: 1px solid lightgrey;
+	background-color: #f2f2f2;
+	padding: 0.5rem 1rem;
+
+	a {
+		padding: 0.5rem 1rem;
+		font-size: 14px;
+		color: #70757a;
+		text-decoration: none;
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+}
+
+.page {
+	height: 100vh;
+	overflow: hidden;
+	display: flex;
+	flex-flow: column;
+	justify-content: space-between;
+}
+
+.extra-links {
+	display: flex;
+	flex-flow: column;
+	margin: 1rem 3rem;
+	a {
+		font-size: 13px;
+	}
+}
+
+.btn.btn-primary {
+	font-size: 11px;
+	font-weight: bold;
+	background-color: #4d90fe;
+
+	&:hover {
+		background-color: #4385ee;
+	}
+}

@@ -1,0 +1,104 @@
+html,
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-size: 13px;
+}
+header a {
+  padding: 0.5rem 1rem;
+  display: inline-block;
+  color: #3c4043;
+  text-decoration: none;
+}
+header a:hover {
+  color: inherit;
+  text-decoration: underline;
+}
+
+main {
+  margin-bottom: 13rem;
+}
+
+footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid lightgrey;
+  background-color: #f2f2f2;
+  padding: 0.5rem 1rem;
+}
+footer a {
+  padding: 0.5rem 1rem;
+  font-size: 14px;
+  color: #70757a;
+  text-decoration: none;
+}
+footer a:hover {
+  text-decoration: underline;
+}
+
+form {
+  margin-top: 2rem;
+  color: #3c4043;
+  width: 550px;
+}
+form #query {
+  background-image: url(search-13-32.jpg), url(camera_alt-black-48dp.svg), url(mic-icon.png), url(blue-search-icon.png);
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
+  background-position: 16px 14px, calc(100% - 100px) 9px, calc(100% - 60px) 9px, calc(100% - 20px) 8px;
+  background-size: 14px, 26px, 26px, 26px;
+  padding: 10px;
+  padding-left: 40px;
+  padding-right: 136px;
+  border-radius: 5rem;
+}
+form #query:hover, form #query:active, form #query:focus {
+  border-color: lightgrey;
+  box-shadow: 0.5px 0.5px 3px 1px lightgrey, -0.5px -0.5px 3px 1px lightgrey;
+}
+form button.btn {
+  font-size: 14px;
+  margin-left: 0.7rem;
+  background-color: #f8f9fa;
+}
+form .input-group-text {
+  background-color: transparent;
+  border-top-left-radius: 5rem;
+  border-bottom-left-radius: 5rem;
+}
+
+.page {
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
+}
+
+.google-logo {
+  color: #4285f4;
+  background-image: url(googlelogo.png);
+  background-repeat: no-repeat;
+  width: 272px;
+  height: 92px;
+  margin: auto;
+  display: flex;
+  justify-content: flex-end;
+}
+.google-logo span {
+  line-height: 1;
+  align-self: flex-end;
+}
+
+/*# sourceMappingURL=images.css.map */

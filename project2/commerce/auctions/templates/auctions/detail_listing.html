@@ -1,0 +1,165 @@
+{% extends 'auctions/layout.html' %}
+{% load static %}
+{% load wiki_filters %}
+
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'auctions/listing.css' %}">
+{% endblock styles %}
+
+{% block body %}
+
+<div class="row">
+
+  {% comment %} LISTING INFORMATION {% endcomment %}
+  <div class="col-7 card card-body">
+
+    <h2 class="card-title mb-3">{{ listing.title }}</h2>
+
+    <p class="mb-1">{{ listing.description }}</p>
+
+    <div class="col-6">
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">Listed at {{ listing.pub_date }}</li>
+        <li class="list-group-item">Vendor: <a
+             href="{% url 'auctions:user_listings' listing.vendor.id %}">{{ listing.vendor }}</a>
+        </li>
+        {% if listing.category %}
+        <li class="list-group-item">Category:
+          <a
+             href="{% url 'auctions:category_listing' listing.category.id %}">{{ listing.category }}</a>
+        </li>
+        {% else %}
+        <li class="list-group-item">Category: No Category</li>
+        {% endif %}
+      </ul>
+    </div>
+
+  </div>
+
+  {% comment %} PRICE TAG AND FORMS {% endcomment %}
+  <div class="col-3 ml-5">
+    {% comment %} WATCHLIST CHECK {% endcomment %}
+    {% if user.is_authenticated and user != listing.vendor %}
+
+    <form class="mb-4" action="{% url 'auctions:watch' listing.id %}" method="post">
+
+      {% csrf_token %}
+      {% if listing not in user.watchlist.all %}
+      <input type="hidden" name="watch" id="watch" value="1">
+      <input class="btn btn-primary" type="submit" value="Add to Watchlist">
+      {% else %}
+      <input type="hidden" name="watch" id="watch" value="0">
+      <input class="btn btn-primary" type="submit" value="Remove from Watchlist">
+      {% endif %}
+
+    </form>
+
+    {% endif %}
+
+
+    {% if match_bidder and not listing.active %}
+    <p class="alert alert-success" id="detail-price-tag">Price: ${{ listing.price }}</p>
+    <p class="winner">Congratulations. You won the auction for the price ${{ listing.price }}</p>
+    {% elif match_bidder %}
+    <p class="alert alert-info" id="detail-price-tag">Price: ${{ listing.price }}</p>
+    <p class="match-bidder">{{ listing.bid_set.count }} Bid(s). Your bid is the highest</p>
+    {% else %}
+    <p class="alert alert-info" id="detail-price-tag">Price: ${{ listing.price }}</p>
+    <p>{{ listing.bid_set.count }} Bid(s)</p>
+    {% endif %}
+
+    {% if user.is_authenticated %}
+
+    {% if listing.vendor == user %} {# VENDOR MANAGER #}
+
+    {% if listing.active %}
+    <a href="{% url "auctions:close_listing" listing.id %}" class="btn btn-primary">Close
+      Listing</a>
+    {% else %}
+    <button class="btn btn-primary" disabled>Listing closed</button>
+    {% endif %}
+
+    <a href="{% url "auctions:edit_listing" listing.id %}" class="btn btn-primary">Edit
+      Listing</a>
+
+    {% else %} {# ENDS VENDOR MANAGER #}
+
+    {# BID FORM #}
+    {% if listing.active %}
+    <form action="{% url 'auctions:bid_listing' listing.id %}" method="post">
+      {% csrf_token %}
+
+      {% for hidden in bid_form.hidden_fields %}
+      {{ hidden }}
+      {% endfor %}
+
+      {% for field in bid_form.visible_fields %}
+      <div class="form-group">
+        <div class="row ml-0 bid-input">
+          <label for="{{ field.id_for_label }}">$</label>
+          {{ field | add_class:"form-control"}}
+        </div>
+        {{ field.errors }}
+      </div>
+      {% endfor %}
+      <input class="btn btn-primary" type="submit" value="Place Bid">
+    </form>
+    {% endif %}
+
+    {% endif %}
+
+    {% endif %}
+
+  </div>
+</div>
+
+<hr>
+
+{% comment %} LISTING IMAGE {% endcomment %}
+<div class="row justify-content-center">
+  <div class="listing-img detail">
+    {% if listing.image %}
+    <img src="{{ listing.image }}" alt="Listing Image">
+    {% else %}
+    <img src="{% static 'auctions/default.jpg' %}" alt="Listing Image">
+    {% endif %}
+  </div>
+</div>
+
+{% comment %} COMMENT FORM {% endcomment %}
+<h3 class="mt-4">Comments</h3>
+<div class="row">
+
+  <div class="col-6">
+    {% if user.is_authenticated %}
+
+    {# COMMENT FORM #}
+    <form action="{% url 'auctions:comment_listing' listing.id %}" method="post">
+      {% csrf_token %}
+      {% include 'auctions/form_snippet.html' with form=comment_form no_label=1 %}
+      <input class="btn btn-primary" type="submit" value="Post comment">
+    </form>
+
+    {% endif %} {# END AUTHENTICATED #}
+
+  </div>
+
+</div>
+
+{% comment %} COMMENT SECTION {% endcomment %}
+<div class="mt-3 mb-5">
+  {% for comment in comments %}
+  <div class="col-8 card comment mb-2">
+    <p class="card-title"><strong>{{ comment.author }}</strong></p>
+    <hr>
+    <p class="card-text">{{ comment.post }}</p>
+    <small class="text-muted">Posted {{ comment.post_date }}</small>
+  </div>
+  {% empty %}
+  <p>No comments to show for this listing</p>
+  {% endfor %}
+</div>
+
+
+{% endblock body %}

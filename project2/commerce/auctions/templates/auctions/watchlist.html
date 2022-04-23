@@ -1,0 +1,52 @@
+{% extends 'auctions/layout.html' %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'auctions/links.css' %}">
+{% endblock styles %}
+
+{% block nav %}
+{% include 'auctions/nav_snippet.html' with link4="active" %}
+{% endblock nav %}
+
+{% block body %}
+
+{% for listing in watchlist %}
+<div class="row mb-2">
+  <div class="col-4 align-items-center">
+
+    <div class="list-group">
+
+      <a class="list-group-item list-group-item-action"
+         href="{% url 'auctions:detail_listing' listing.id %}">{{ listing.title }}</a>
+
+    </div>
+
+  </div>
+  {% if listing.active %}
+
+  <div class="col-4 d-flex align-items-center p-0">
+    <form action="{% url 'auctions:watchlist' listing.id %}"
+          method="post">
+      {% csrf_token %}
+      <input class="btn btn-primary" type="submit" value="Remove">
+    </form>
+  </div>
+
+  {% else %}
+  <div class="col-4 d-flex align-items-center p-0">
+    <p class="alert alert-success">Auction Won</p>
+  </div>
+  {% endif %}
+</div>
+
+{% empty %}
+
+<h4>Your watchlist is empty</h4>
+
+{% endfor %}
+
+
+
+
+{% endblock body %}
