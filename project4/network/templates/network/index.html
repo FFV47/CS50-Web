@@ -2,6 +2,11 @@
 {% load static %}
 {% block body %}
   <div id="root"></div>
-  <script type="module" src="{% static 'network/index.js'
-  %}"></script>
+  <script>
+    const apiURL = {
+      "followingPosts": "{% url 'network:following_posts' %}",
+      "newPost": "{% url 'network:new_post' %}",
+    }
+  </script>
+  <script type="module" src="{% static 'network/index.js' %}"></script>
 {% endblock %}

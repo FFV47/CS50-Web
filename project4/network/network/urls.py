@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.urls import path
+from django.urls import path, re_path
 from django.conf.urls.static import static
 
 from . import views
@@ -19,4 +19,5 @@ urlpatterns = [
     path("api/edit_post", views.edit_post, name="edit_post"),
     path("api/like_post", views.like_post, name="like_post"),
     path("api/new_comment", views.new_comment, name="new_comment"),
+    re_path(r"^.*", views.index, name="react_root"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
