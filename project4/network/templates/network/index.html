@@ -3,10 +3,10 @@
 {% block body %}
   <div id="root"></div>
   <script>
-    const apiURL = {
+    {% comment %} const apiURL = {
       "followingPosts": "{% url 'network:following_posts' %}",
-      "newPost": "{% url 'network:new_post' %}",
-    }
+      "newPost": "{% url 'network:ninja_api:new_post' as new_post %}",
+    } {% endcomment %}
   </script>
   <script type="module" src="{% static 'network/index.js' %}"></script>
 {% endblock %}

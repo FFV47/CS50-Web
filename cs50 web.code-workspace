@@ -22,7 +22,7 @@
       "django-html": "html"
     },
     "editor.autoClosingBrackets": "always",
-    "window.zoomLevel": 1,
+    "window.zoomLevel": 0,
     "customizeUI.fontSizeMap": {
       "13px": "15px",
     }

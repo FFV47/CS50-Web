@@ -1,7 +1,22 @@
+import pytest
 from django.forms import ValidationError
 from django.test import TestCase
 from django.urls import reverse
-from .models import User, Post, Comment
+
+from .models import Comment, Post, User
+
+
+@pytest.fixture(autouse=True)
+def whitenoise_autorefresh(settings):
+    """
+    Get rid of whitenoise "No directory at" warning, as it's not helpful when running tests.
+
+    Related:
+        - https://github.com/evansd/whitenoise/issues/215
+        - https://github.com/evansd/whitenoise/issues/191
+        - https://github.com/evansd/whitenoise/commit/4204494d44213f7a51229de8bc224cf6d84c01eb
+    """
+    settings.WHITENOISE_AUTOREFRESH = True
 
 
 # Create your tests here.
@@ -144,7 +159,7 @@ class ViewsAPITest(TestCase):
         """
         Test if all posts from the database are returned
         """
-        url = reverse("network:all_posts")
+        url = reverse("network:rest_api:all_posts")
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
@@ -153,9 +168,9 @@ class ViewsAPITest(TestCase):
     def test_user_posts(self):
         """
         Test if all posts from one user are returned, when user is
-        loggeg in
+        logged in
         """
-        url = reverse("network:all_posts")
+        url = reverse("network:rest_api:all_posts")
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
@@ -167,11 +182,12 @@ class ViewsAPITest(TestCase):
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(
-            response.json()["error"], "GET or POST with authentication request required"
+            response.json()["error"],
+            "You must be logged in to query posts from selected user.",
         )
 
         self.client.login(username="user1", password="password")
-        url = reverse("network:all_posts")
+        url = reverse("network:rest_api:all_posts")
         response = self.client.post(
             url, {"username": self.user1.username}, content_type="application/json"
         )
@@ -183,18 +199,18 @@ class ViewsAPITest(TestCase):
 
         self.client.login(username="user1", password="password")
 
-        url = reverse("network:follow")
+        url = reverse("network:rest_api:follow")
         response = self.client.post(
             url, {"username": "user2"}, content_type="application/json"
         )
         self.assertEqual(response.status_code, 200)
 
-        url = reverse("network:following_posts")
+        url = reverse("network:rest_api:following_posts")
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
         resp_json = response.json()
-        self.assertIn(self.user2.username, resp_json[0]["user"])
+        self.assertIn(self.user2.username, resp_json[0]["username"])
         self.assertIn(self.post2.text, resp_json[0]["text"])
 
     def test_user_new_post(self):
@@ -202,47 +218,42 @@ class ViewsAPITest(TestCase):
         Test if a new post was published
         """
         self.client.login(username="user1", password="password")
-        url = reverse("network:new_post")
+        url = reverse("network:rest_api:new_post")
 
         response = self.client.post(
-            url, {"post_text": "Hello World"}, content_type="application/json"
+            url, {"text": "Hello World"}, content_type="application/json"
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.user1.posts.count(), 2)
 
         resp_json = response.json()
         self.assertEqual(resp_json["message"], "Post created successfully.")
-        self.assertEqual(resp_json["post"]["text"], "Hello World")
-        self.assertEqual(resp_json["post"]["user"], self.user1.username)
-        self.assertListEqual(resp_json["post"]["liked_by"], [])
 
     def test_new_post_length(self):
         """
         Test if a new post respects min and max characters.
         """
         self.client.login(username="user1", password="password")
-        url = reverse("network:new_post")
+        url = reverse("network:rest_api:new_post")
 
         # max_length test
         response = self.client.post(
             url,
-            {"post_text": "a" * 300},
+            {"text": "a" * 300},
             content_type="application/json",
         )
 
+        error = response.json()["errors"][0]
+
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(
-            response.json()["error"], "Post must be at most 280 characters long."
-        )
+        self.assertEqual(error["msg"], "Post must be at most 280 characters long.")
 
         # min_length test
-        response = self.client.post(
-            url, {"post_text": "a"}, content_type="application/json"
-        )
+        response = self.client.post(url, {"text": "a"}, content_type="application/json")
+        error = response.json()["errors"][0]
+
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(
-            response.json()["error"], "Post must be at least 5 characters long."
-        )
+        self.assertEqual(error["msg"], "Post must be at least 5 characters long.")
 
         self.assertEqual(self.user1.posts.count(), 1)
         self.assertEqual(Post.objects.count(), 2)
@@ -251,35 +262,32 @@ class ViewsAPITest(TestCase):
 
         self.client.login(username="user1", password="password")
 
-        url = reverse("network:like_post")
-        response = self.client.post(
-            url, {"post_id": self.post1.id}, content_type="application/json"
-        )
+        url = reverse("network:rest_api:like_post", args=[self.post1.id])
+        print(url)
+        response = self.client.patch(url)
 
         self.assertEqual(response.status_code, 200)
 
         # like post
         resp_json = response.json()
         self.assertEqual(resp_json["message"], "Post liked")
-        self.assertIn(self.user1.username, resp_json["post"]["liked_by"])
+        self.assertIn(self.user1, self.post1.liked_by.all())
 
-        response = self.client.post(
-            url, {"post_id": self.post1.id}, content_type="application/json"
-        )
+        response = self.client.patch(url)
+
         # unlike post
         resp_json = response.json()
         self.assertEqual(resp_json["message"], "Post unliked")
-        self.assertNotIn(self.user1.username, resp_json["post"]["liked_by"])
-        self.assertEqual(len(resp_json["post"]["liked_by"]), 0)
+        self.assertNotIn(self.user1, self.post1.liked_by.all())
 
     def test_new_comment(self):
         self.client.login(username="user1", password="password")
 
-        url = reverse("network:new_comment")
+        url = reverse("network:rest_api:new_comment")
 
         response = self.client.post(
             url,
-            {"comment_text": "Hello World", "post_id": self.post1.id},
+            {"text": "Hello World", "post_id": self.post1.id},
             content_type="application/json",
         )
 
@@ -288,17 +296,16 @@ class ViewsAPITest(TestCase):
 
         resp_json = response.json()
         self.assertEqual(resp_json["message"], "Comment created successfully.")
-        self.assertEqual(resp_json["comment"]["text"], "Hello World")
-        self.assertEqual(resp_json["comment"]["user"], self.user1.username)
 
     def test_follow_user(self):
         self.client.login(username="user1", password="password")
 
-        url = reverse("network:follow")
+        url = reverse("network:rest_api:follow")
 
         response = self.client.post(
             url, {"username": "user2"}, content_type="application/json"
         )
+        print(response.json())
         self.assertEqual(response.status_code, 200)
 
         self.assertIn(self.user2, self.user1.following.all())
