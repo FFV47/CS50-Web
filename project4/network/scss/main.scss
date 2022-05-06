@@ -6,3 +6,39 @@
 @import "../node_modules/bootstrap/scss/bootstrap";
 
 // Then add additional custom code here
+
+.bg-navbar {
+  background-color: $indigo-500;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+  color: $purple-100;
+
+  &:hover {
+    color: $white;
+  }
+
+  &.active {
+    color: $white;
+    background-color: $indigo-300;
+  }
+}
+
+.center-form {
+  display: flex;
+  flex-direction: column;
+
+  & > h2 {
+    align-self: center;
+  }
+}
+
+.form-input {
+  font-size: 1.2rem;
+}
+
+@media screen and (min-width: 576px) {
+  .center-form {
+    max-width: 540px;
+  }
+}

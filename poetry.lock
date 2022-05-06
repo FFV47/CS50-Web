@@ -1,6 +1,6 @@
 [[package]]
 name = "asgiref"
-version = "3.5.0"
+version = "3.5.1"
 description = "ASGI specs, helper code, and adapters"
 category = "main"
 optional = false
@@ -53,7 +53,6 @@ mypy-extensions = ">=0.4.3"
 pathspec = ">=0.9.0"
 platformdirs = ">=2"
 tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
-typing-extensions = {version = ">=3.10.0.0", markers = "python_version < \"3.10\""}
 
 [package.extras]
 colorama = ["colorama (>=0.4.3)"]
@@ -164,7 +163,7 @@ test = ["pytest", "pytest-cov", "pytest-django", "pytest-asyncio", "black", "iso
 
 [[package]]
 name = "djlint"
-version = "0.7.6"
+version = "1.0.0"
 description = "HTML Template Linter and Formatter"
 category = "dev"
 optional = false
@@ -177,7 +176,7 @@ importlib-metadata = ">=4.11.0,<5.0.0"
 pathspec = ">=0.9.0,<0.10.0"
 PyYAML = ">=6.0,<7.0"
 regex = ">=2022.1.18,<2023.0.0"
-tomlkit = ">=0.9.2,<0.10.0"
+tomlkit = ">=0.10.0,<0.11.0"
 tqdm = ">=4.62.2,<5.0.0"
 
 [package.extras]
@@ -510,7 +509,7 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "tomlkit"
-version = "0.9.2"
+version = "0.10.2"
 description = "Style preserving TOML library"
 category = "dev"
 optional = false
@@ -635,13 +634,13 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 
 [metadata]
 lock-version = "1.1"
-python-versions = "^3.9"
-content-hash = "1fce6c7aecd619149634e3c3b04869179356164a8e6382dd3ed239c24997b16b"
+python-versions = "^3.10"
+content-hash = "8b159615ca4c2a560af268d71ceb8a29ef7b49165c8aef42a08acfabab0e950b"
 
 [metadata.files]
 asgiref = [
-    {file = "asgiref-3.5.0-py3-none-any.whl", hash = "sha256:88d59c13d634dcffe0510be048210188edd79aeccb6a6c9028cdad6f31d730a9"},
-    {file = "asgiref-3.5.0.tar.gz", hash = "sha256:2f8abc20f7248433085eda803936d98992f1343ddb022065779f37c5da0181d0"},
+    {file = "asgiref-3.5.1-py3-none-any.whl", hash = "sha256:45a429524fba18aba9d512498b19d220c4d628e75b40cf5c627524dbaebc5cc1"},
+    {file = "asgiref-3.5.1.tar.gz", hash = "sha256:fddeea3c53fa99d0cdb613c3941cc6e52d822491fc2753fba25768fb5bf4e865"},
 ]
 async-generator = [
     {file = "async_generator-1.10-py3-none-any.whl", hash = "sha256:01c7bf666359b4967d2cda0000cc2e4af16a0ae098cbffcb8472fb9e8ad6585b"},
@@ -781,8 +780,8 @@ django-ninja = [
     {file = "django_ninja-0.17.0-py3-none-any.whl", hash = "sha256:31a5c040a36c620deb4c20731c094540e3245a7b885a7f9d28e85098886595fc"},
 ]
 djlint = [
-    {file = "djlint-0.7.6-py3-none-any.whl", hash = "sha256:d14d25e1eeebc70ccfcf8dedbcf22e8dc791419ae736aeda9b12b5e7e61cfc04"},
-    {file = "djlint-0.7.6.tar.gz", hash = "sha256:7d36548d45b88835f5a20c50970eb41c01833fdaadabc07605407294252100bb"},
+    {file = "djlint-1.0.0-py3-none-any.whl", hash = "sha256:ed03d865b689456cae669226f142f5db6ec216229f6e12fab599fac824350213"},
+    {file = "djlint-1.0.0.tar.gz", hash = "sha256:53784c302a883168d0100f4b1f16ac0662e18e6c4b604940a1aeda336e709c73"},
 ]
 flake8 = [
     {file = "flake8-4.0.1-py2.py3-none-any.whl", hash = "sha256:479b1304f72536a55948cb40a32dce8bb0ffe3501e26eaf292c7e60eb5e0428d"},
@@ -1078,8 +1077,8 @@ tomli = [
     {file = "tomli-2.0.1.tar.gz", hash = "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"},
 ]
 tomlkit = [
-    {file = "tomlkit-0.9.2-py3-none-any.whl", hash = "sha256:daf4f9c5f2fbf6b861d6adfc51940b98dee36c13e1d88749a6dc9fb280fff304"},
-    {file = "tomlkit-0.9.2.tar.gz", hash = "sha256:ebd982d61446af95a1e082b103e250cb9e6d152eae2581d4a07d31a70b34ab0f"},
+    {file = "tomlkit-0.10.2-py3-none-any.whl", hash = "sha256:905cf92c2111ef80d355708f47ac24ad1b6fc2adc5107455940088c9bbecaedb"},
+    {file = "tomlkit-0.10.2.tar.gz", hash = "sha256:30d54c0b914e595f3d10a87888599eab5321a2a69abc773bbefff51599b72db6"},
 ]
 tqdm = [
     {file = "tqdm-4.64.0-py2.py3-none-any.whl", hash = "sha256:74a2cdefe14d11442cedf3ba4e21a3b84ff9a2dbdc6cfae2c34addb2a14a5ea6"},

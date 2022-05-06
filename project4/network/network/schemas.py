@@ -18,7 +18,7 @@ class Error(Schema):
 
 
 def format_date(datetime: timezone.datetime):
-    return timezone.localtime(datetime).strftime("%H:%M %d/%m/%Y")
+    return timezone.localtime(datetime).strftime("%B %d, %Y - %H:%M")
 
 
 def must_not_be_html(string):

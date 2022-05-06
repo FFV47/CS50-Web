@@ -29,7 +29,7 @@ def login_view(request: HttpRequest):
                 {"message": "Invalid username and/or password."},
             )
     else:
-        return render(request, "network/login.html")
+        return render(request, "network/login.html", {"page": "login"})
 
 
 def logout_view(request: HttpRequest):
@@ -44,7 +44,9 @@ def register(request: HttpRequest):
         confirmation = request.POST["confirmation"]
         if password != confirmation:
             return render(
-                request, "network/register.html", {"message": "Passwords must match."}
+                request,
+                "network/register.html",
+                {"message": "Passwords must match.", "page": "register"},
             )
 
         # Attempt to create new user
@@ -56,9 +58,13 @@ def register(request: HttpRequest):
             messages = " ".join(
                 [f"{key}: {', '.join(value)}" for key, value in e.message_dict.items()]
             )
-            return render(request, "network/register.html", {"message": messages})
+            return render(
+                request,
+                "network/register.html",
+                {"message": messages, "page": "register"},
+            )
 
         login(request, user)
         return redirect("network:index")
     else:
-        return render(request, "network/register.html")
+        return render(request, "network/register.html", {"page": "register"})

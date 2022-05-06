@@ -1,0 +1,80 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <title>
+      {% block title %}
+        Social Network
+      {% endblock title %}
+
+    </title>
+    <link href="{% static 'network/index.css' %}" rel="stylesheet" />
+    {{ user.is_authenticated|json_script:"djangoUser" }}
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-md navbar-dark bg-navbar nav-pills">
+      <div class="container-fluid justify-content-center">
+        <a class="navbar-brand" href="#">Social Network</a>
+        <button class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarNavAltMarkup"
+                aria-controls="navbarNavAltMarkup"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div class="navbar-nav">
+            {% if user.is_authenticated %}
+              {% url 'network:profile' as profile_url %}
+              {% if request.path == profile_url %}
+                <a class="nav-link active" href="{% url 'network:profile' %}"><strong>{{ user.username }}</strong></a>
+              {% else %}
+                <a class="nav-link" href="{% url 'network:profile' %}"><strong>{{ user.username }}</strong></a>
+              {% endif %}
+            {% endif %}
+            {% url 'network:index' as index_url %}
+            {% if request.path == index_url %}
+              <a class="nav-link active" href="{% url 'network:index' %}">All Posts</a>
+            {% else %}
+              <a class="nav-link" href="{% url 'network:index' %}">All Posts</a>
+            {% endif %}
+            {% if user.is_authenticated %}
+              {% url 'network:following' as following_url %}
+              {% if request.path == following_url %}
+                <a class="nav-link active" href="{% url 'network:following' %}">Following</a>
+              {% else %}
+                <a class="nav-link" href="{% url 'network:following' %}">Following</a>
+              {% endif %}
+              <a class="nav-link" href="{% url 'network:logout' %}">Log Out</a>
+            {% else %}
+              {% url 'network:login' as login_url %}
+              {% if request.path == login_url %}
+                <a class="nav-link active" href="{% url 'network:login' %}">Log In</a>
+              {% else %}
+                <a class="nav-link" href="{% url 'network:login' %}">Log In</a>
+              {% endif %}
+              {% url 'network:register' as register_url %}
+              {% if request.path == register_url %}
+                <a class="nav-link active" href="{% url 'network:register' %}">Register</a>
+              {% else %}
+                <a class="nav-link" href="{% url 'network:register' %}">Register</a>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </nav>
+    <div class="body">
+      {% block body %}
+      {% endblock body %}
+
+    </div>
+  </body>
+</html>
