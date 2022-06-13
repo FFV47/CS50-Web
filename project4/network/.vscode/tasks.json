@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "sass-watch",
+      "type": "shell",
+      "group": "test",
+      "command": "sass --no-source-map --update -c -w scss:frontend",
+      "problemMatcher": []
+    },
+    {
+      "label": "parcel",
+      "type": "shell",
+      "group": "test",
+      "command": "parcel watch",
+      "problemMatcher": []
+    }
+  ]
+}

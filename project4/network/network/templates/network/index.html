@@ -2,13 +2,11 @@
 
 {% load static %}
 
+{% block scripts %}
+  {{ user_info|json_script:"userInfo" }}
+{% endblock scripts %}
+
 {% block body %}
   <div id="root"></div>
-  <script>
-    {% comment %} const apiURL = {
-      "followingPosts": "{% url 'network:following_posts' %}",
-      "newPost": "{% url 'network:ninja_api:new_post' as new_post %}",
-    } {% endcomment %}
-  </script>
   <script type="module" src="{% static 'network/index.js' %}"></script>
 {% endblock body %}

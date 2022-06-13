@@ -7,7 +7,13 @@ from .models import User
 
 
 def index(request: HttpRequest):
-    return render(request, "network/index.html")
+    context = {
+        "user_info": {
+            "logged_in": request.user.is_authenticated,
+            "username": request.user.username,
+        }
+    }
+    return render(request, "network/index.html", context)
 
 
 def login_view(request: HttpRequest):

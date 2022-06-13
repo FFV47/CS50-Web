@@ -27,6 +27,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1"]
 
+INTERNAL_IPS = ["127.0.0.1"]
+
 LOGIN_URL = "/login"
 
 # Application definition
@@ -35,6 +37,7 @@ INSTALLED_APPS = [
     "network",
     "whitenoise.runserver_nostatic",
     "ninja",
+    "debug_toolbar",
     "django_browser_reload",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -54,6 +57,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_browser_reload.middleware.BrowserReloadMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = "project4.urls"
@@ -127,7 +131,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STATIC_URL = "/static/"
 
-STATICFILES_DIRS = [BASE_DIR / "static"]
+# STATICFILES_DIRS = [BASE_DIR / "static"]
 
 # User uploaded files
 # https://docs.djangoproject.com/en/4.0/ref/settings/#media-root

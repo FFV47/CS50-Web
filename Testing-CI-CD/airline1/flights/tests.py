@@ -2,9 +2,9 @@ from django.test import TestCase
 
 from .models import Airport, Flight
 
+
 # Create your tests here.
 class ModelsTestCase(TestCase):
-
     def setUp(self):
 
         # Create airports.

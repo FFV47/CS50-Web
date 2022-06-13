@@ -37,6 +37,72 @@
   font-size: 1.2rem;
 }
 
+.comment {
+  list-style: none;
+}
+
+.like-form {
+  display: flex;
+  align-items: center;
+
+  .like-btn {
+    border: none;
+    font-size: 1.4rem;
+    background: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    color: red;
+
+    svg {
+      width: 1em;
+      height: 1em;
+      transition: stroke-width 0.2s ease-in-out;
+
+      &:hover {
+        stroke-width: 5rem;
+      }
+    }
+  }
+}
+
+.edit-post {
+  &-enter {
+    opacity: 0;
+    max-height: 0;
+  }
+
+  &-enter-active {
+    opacity: 1;
+    max-height: 1000px;
+    transition: opacity 1.2s ease-in, max-height 5s ease-out;
+  }
+
+  &-exit {
+    opacity: 1;
+    max-height: 1000px;
+  }
+  &-exit-active {
+    opacity: 0;
+    max-height: 0;
+    transition: opacity 0.5s ease-in, max-height 5s ease-in;
+  }
+}
+
+.show-comments-btn {
+  color: $blue-400;
+  &:focus {
+    box-shadow: none;
+  }
+
+  &:hover {
+    color: $blue-600;
+    text-decoration: underline;
+  }
+}
+
 @media screen and (min-width: 576px) {
   .center-form {
     max-width: 540px;

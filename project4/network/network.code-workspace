@@ -1,0 +1,13 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "window.zoomLevel": 0,
+    "customizeUI.fontSizeMap": {
+      "13px": "14px",
+    }
+  }
+}

@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-sass --no-source-map --stop-on-error --update -c -w scss:frontend

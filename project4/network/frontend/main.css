@@ -11145,6 +11145,64 @@ textarea.form-control-lg {
   font-size: 1.2rem;
 }
 
+.comment {
+  list-style: none;
+}
+
+.like-form {
+  display: flex;
+  align-items: center;
+}
+.like-form .like-btn {
+  border: none;
+  font-size: 1.4rem;
+  background: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: red;
+}
+.like-form .like-btn svg {
+  width: 1em;
+  height: 1em;
+  transition: stroke-width 0.2s ease-in-out;
+}
+.like-form .like-btn svg:hover {
+  stroke-width: 5rem;
+}
+
+.edit-post-enter {
+  opacity: 0;
+  max-height: 0;
+}
+.edit-post-enter-active {
+  opacity: 1;
+  max-height: 1000px;
+  transition: opacity 1.2s ease-in, max-height 5s ease-out;
+}
+.edit-post-exit {
+  opacity: 1;
+  max-height: 1000px;
+}
+.edit-post-exit-active {
+  opacity: 0;
+  max-height: 0;
+  transition: opacity 0.5s ease-in, max-height 5s ease-in;
+}
+
+.show-comments-btn {
+  color: #3d8bfd;
+}
+.show-comments-btn:focus {
+  box-shadow: none;
+}
+.show-comments-btn:hover {
+  color: #0a58ca;
+  text-decoration: underline;
+}
+
 @media screen and (min-width: 576px) {
   .center-form {
     max-width: 540px;

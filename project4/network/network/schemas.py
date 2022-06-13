@@ -9,14 +9,6 @@ from pydantic import constr, validator
 from .models import Comment, Post, User
 
 
-class Username(Schema):
-    username: str | None = None
-
-
-class Error(Schema):
-    error: str
-
-
 def format_date(datetime: timezone.datetime):
     return timezone.localtime(datetime).strftime("%B %d, %Y - %H:%M")
 
@@ -27,7 +19,21 @@ def must_not_be_html(string):
     return string
 
 
+class Error(Schema):
+    error: str
+
+
+# ----------
+# * User
+# ----------
+
+
+class Username(Schema):
+    username: str | None = None
+
+
 class UserOut(ModelSchema):
+    # "..." means the field is required
     firstName: str = Field(..., alias="first_name")
     lastName: str = Field(..., alias="last_name")
     lastLogin: str = Field(..., alias="last_login")
@@ -46,15 +52,22 @@ class UserOut(ModelSchema):
             "email",
         ]
 
-    def resolve_date_joined(self, obj):
+    @staticmethod
+    def resolve_date_joined(obj):
         return format_date(obj.date_joined)
 
-    def resolve_last_login(self, obj):
+    @staticmethod
+    def resolve_last_login(obj):
         return format_date(obj.last_login)
 
 
+# ----------
+# * Post
+# ----------
+
+
 class PostIn(Schema):
-    post_id: int | None
+    post_id: int | None = Field(None, alias="postID")
     text: constr(strip_whitespace=True)  # type: ignore
 
     block_html = validator("text", allow_reuse=True)(must_not_be_html)
@@ -70,23 +83,56 @@ class PostIn(Schema):
 
 class PostOut(ModelSchema):
     username: str = Field(..., alias="user.username")
-    likedBy: list[Username] = Field(..., alias="liked_by")
+    likes: int = Field(..., alias="likes")
+    likedByUser: bool = Field(False, alias="liked_by_user")
     publicationDate: str = Field(..., alias="publication_date")
     lastModified: str = Field(..., alias="last_modified")
     comments: list[CommentOut] = Field(..., alias="comments")
 
     class Config:
         model = Post
-        model_fields = ["id", "text"]
+        model_fields = ["id", "text", "edited"]
 
-    def resolve_publication_date(self, obj):
+    # obj parameter is the Post object from Django ORM
+    @staticmethod
+    def resolve_publication_date(obj):
         return format_date(obj.publication_date)
 
-    def resolve_last_modified(self, obj):
+    @staticmethod
+    def resolve_last_modified(obj):
         return format_date(obj.last_modified)
 
-    def resolve_comments(self, obj):
+    @staticmethod
+    def resolve_comments(obj):
         return obj.comments.filter(reply=False)
+
+    @staticmethod
+    def resolve_liked_by(obj):
+        return [u.username for u in obj.liked_by.all()]
+
+
+class EditedPost(ModelSchema):
+    lastModified: str = Field(..., alias="last_modified")
+
+    class Config:
+        model = Post
+        model_fields = ["id", "text", "edited"]
+
+    @staticmethod
+    def resolve_last_modified(obj):
+        return format_date(obj.last_modified)
+
+
+class PaginatedPosts(Schema):
+    numPages: int
+    previousPage: int | None = None
+    nextPage: int | None = None
+    posts: list[PostOut]
+
+
+# ----------
+# * Comment
+# ----------
 
 
 class CommentIn(Schema):
@@ -106,10 +152,12 @@ class CommentOut(ModelSchema):
         model = Comment
         model_fields = ["id", "text"]
 
-    def resolve_publication_date(self, obj):
+    @staticmethod
+    def resolve_publication_date(obj):
         return format_date(obj.publication_date)
 
 
+# Self-referencing schemes
 UserOut.update_forward_refs()
 PostOut.update_forward_refs()
 CommentOut.update_forward_refs()

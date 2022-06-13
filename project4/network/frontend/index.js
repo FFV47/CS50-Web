@@ -4,17 +4,27 @@ import "./main.css";
 
 import React from "react";
 import ReactDOM from "react-dom/client";
+
+import { QueryClient, QueryClientProvider } from "react-query";
+import { ReactQueryDevtools } from "react-query/devtools";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+
 import App from "./App";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+// eslint-disable-next-line no-unused-vars
+
+const queryClient = new QueryClient();
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 root.render(
-  <React.StrictMode>
+  // <React.StrictMode>
+  <QueryClientProvider client={queryClient}>
     <BrowserRouter>
       <Routes>
-        <Route path="*" element={<App />} />
+        <Route path="/*" element={<App />} />
       </Routes>
     </BrowserRouter>
-  </React.StrictMode>
+    <ReactQueryDevtools initialIsOpen={false} />
+  </QueryClientProvider>
+  // </React.StrictMode>
 );

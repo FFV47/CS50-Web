@@ -15,5 +15,5 @@ urlpatterns = [
     path("profile", views.index, name="profile"),
     path("following", views.index, name="following"),
     path("api/", api.urls),
-    # re_path(r"^.*", views.index, name="react_root"),
+    re_path(r"^.*", views.index, name="react_root"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
