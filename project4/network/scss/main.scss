@@ -5,7 +5,78 @@
 
 @import "../node_modules/bootstrap/scss/bootstrap";
 
+// Mixins
+
+// React CSS Transition Group
+@mixin component-transition {
+  will-change: transform, opacity;
+  &-enter {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  &-enter-active {
+    opacity: 1;
+    transform: translateZ(0); // Fixes scale transition
+    transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+  }
+
+  &-exit {
+    opacity: 1;
+  }
+  &-exit-active {
+    opacity: 0;
+    transform: scale(0.8);
+    transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+  }
+}
+
 // Then add additional custom code here
+:root {
+  --bs-font-sans-serif: "Inter", system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+.toast-visible {
+  display: flex;
+  align-items: center;
+  height: fit-content;
+
+  & .toast-body {
+    margin-bottom: 0;
+  }
+}
+
+.center {
+  display: grid;
+  place-items: center;
+}
+
+.screen-reader-only {
+  position: absolute;
+  left: -99999px;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.loading-spinner {
+  animation: loading 0.8s linear infinite;
+  width: 1.7rem;
+  height: 1.7rem;
+  fill: $indigo-500;
+}
+
+@keyframes loading {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
 
 .bg-navbar {
   background-color: $indigo-500;
@@ -37,6 +108,43 @@
   font-size: 1.2rem;
 }
 
+.page-link svg {
+  &.previous {
+    transform: rotate(180deg);
+  }
+
+  polygon {
+    stroke: $primary;
+  }
+
+  &.disabled polygon {
+    stroke: $secondary;
+  }
+}
+
+.post-title {
+  display: flex;
+  align-items: center;
+
+  & button {
+    border-radius: 1rem;
+    margin-left: 1rem;
+    padding: 0.15rem 0.7rem;
+  }
+}
+
+.post-owner {
+  font-family: "Rubik", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 1.5rem;
+  text-decoration: none;
+  margin-bottom: 0;
+
+  &:hover {
+    transition: color 0.3s ease-out;
+    color: $primary;
+  }
+}
+
 .comment {
   list-style: none;
 }
@@ -59,36 +167,32 @@
     svg {
       width: 1em;
       height: 1em;
-      transition: stroke-width 0.2s ease-in-out;
+      fill: transparent;
+      stroke-width: 3rem;
+      transition: stroke-width 0.2s ease-in-out, fill 0.3s ease-in-out;
 
       &:hover {
-        stroke-width: 5rem;
+        stroke-width: 6rem;
+      }
+
+      &.liked {
+        fill: currentColor;
       }
     }
   }
 }
 
+.edit-btn {
+  max-width: 150px;
+}
+
 .edit-post {
-  &-enter {
-    opacity: 0;
-    max-height: 0;
-  }
+  @include component-transition;
+}
 
-  &-enter-active {
-    opacity: 1;
-    max-height: 1000px;
-    transition: opacity 1.2s ease-in, max-height 5s ease-out;
-  }
-
-  &-exit {
-    opacity: 1;
-    max-height: 1000px;
-  }
-  &-exit-active {
-    opacity: 0;
-    max-height: 0;
-    transition: opacity 0.5s ease-in, max-height 5s ease-in;
-  }
+.post-textarea {
+  resize: none;
+  overflow: hidden;
 }
 
 .show-comments-btn {
@@ -103,8 +207,33 @@
   }
 }
 
+.show-comments {
+  @include component-transition;
+}
+
+.comment-title {
+  display: flex;
+  align-items: center;
+
+  p {
+    margin-bottom: 0;
+  }
+
+  button {
+    margin-left: 0.7rem;
+  }
+}
+
+.comment-form {
+  @include component-transition;
+}
+
 @media screen and (min-width: 576px) {
   .center-form {
     max-width: 540px;
+  }
+
+  .container {
+    max-width: 720px;
   }
 }

@@ -31,16 +31,6 @@ class User(AbstractUser):
         self.full_clean()
         super().save(*args, **kwargs)
 
-    # def profile_posts(self):
-    #     return [
-    #         {
-    #             "text": post.text,
-    #             "publication_date": post.publication_date.strftime("%H:%M %d/%m/%Y"),
-    #             "likes": post.likes,
-    #         }
-    #         for post in self.posts.all()  # type: ignore
-    #     ]
-
     def __str__(self):
         return f"{self.username}"  # type: ignore
 

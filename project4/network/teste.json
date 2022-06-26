@@ -1,0 +1,15 @@
+{
+  "id": 1,
+  "password": "pbkdf2_sha256$320000$PQ3yjxFxdWZmJGmCywGOj0$F7fdLCxQutUhdybM46Wr4BgCz7AeMtBSqr21KujcL7s=",
+  "last_login": "datetime.datetime(2022, 6, 23, 21, 42, 53, 574889, tzinfo=datetime.timezone.utc)",
+  "is_superuser": true,
+  "username": "fernando",
+  "first_name": "",
+  "last_name": "",
+  "email": "fernando@example.com",
+  "is_staff": true,
+  "is_active": true,
+  "date_joined": "datetime.datetime(2022, 4, 26, 20, 23, 31, tzinfo=datetime.timezone.utc)",
+  "photo": "",
+  "following_names": "maria"
+}

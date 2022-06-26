@@ -1,22 +1,33 @@
 from time import sleep
 
+import orjson
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import ValidationError as ModelError
-from django.db.models import Case, Count, Q, When
+from django.core.paginator import InvalidPage, Paginator
+from django.db.models import (
+    Case,
+    Count,
+    Exists,
+    OuterRef,
+    Prefetch,
+    Q,
+    Value,
+    When,
+    prefetch_related_objects,
+)
 from django.http import HttpRequest
 from django.utils import timezone
 from ninja import NinjaAPI
 from ninja.errors import ValidationError as PydanticError
+from ninja.renderers import BaseRenderer
 from ninja.security import django_auth
-
-from network.utility import posts_pager
 
 from .models import Comment, Post, User
 from .schemas import (
     CommentIn,
-    CommentOut,
     EditedPost,
     Error,
+    FollowOut,
     PaginatedPosts,
     PostIn,
     PostOut,
@@ -24,12 +35,22 @@ from .schemas import (
     UserOut,
 )
 
-# It's needed to add Ninja namespace inside the Django app namespace
-api = NinjaAPI(csrf=True, auth=django_auth, urls_namespace="network:api")
 
-# -------------------
-# Exception Handling
-# -------------------
+class ORJSONRenderer(BaseRenderer):
+    media_type = "application/json"
+
+    def render(self, request, data, *, response_status):
+        return orjson.dumps(data, option=orjson.OPT_UTC_Z | orjson.OPT_OMIT_MICROSECONDS)
+
+
+# It's needed to add Ninja namespace inside the Django app namespace
+api = NinjaAPI(
+    renderer=ORJSONRenderer(), csrf=True, auth=django_auth, urls_namespace="network:api"
+)
+
+# --------------------
+# region Exception Handling
+# --------------------
 
 
 @api.exception_handler(ObjectDoesNotExist)
@@ -53,9 +74,11 @@ def pydantic_validation(request: HttpRequest, exc):
     return api.create_response(request, errors, status=400)
 
 
-# ----------
-# API Views
-# ----------
+# endregion
+
+# -----------
+# region API Views
+# -----------
 @api.post("/new_post", url_name="new_post", response=PostOut)
 def new_post(request: HttpRequest, new_post: PostIn):
     """
@@ -63,8 +86,12 @@ def new_post(request: HttpRequest, new_post: PostIn):
     """
     post = Post.objects.create(user=request.user, text=new_post.text)
     post.liked_by.add(request.user)
+    post.is_owner = True
+    post.is_following = False
     post.likes = 1
     post.liked_by_user = True
+
+    sleep(1)
 
     return post
 
@@ -80,10 +107,6 @@ def edit_post(request: HttpRequest, edited_post: PostIn):
     # object (which is a unique constraint), which is ideal for get
     # lookup.
 
-    # Finally, realize that update() does an update at the SQL level
-    # and, thus, does not call any save() methods on your models, nor
-    # does it emit the pre_save or post_save signals
-    # https://docs.djangoproject.com/en/4.0/ref/models/querysets/#update
     post = Post.objects.get(Q(user=request.user) & Q(id=edited_post.post_id))
     post.text = edited_post.text
     post.last_modified = timezone.now()
@@ -108,7 +131,7 @@ def like_post(request: HttpRequest, post_id: int):
     return {"id": post.id, "likes": post.liked_by.count(), "likedByUser": True}
 
 
-@api.post("/new_comment", url_name="new_comment", response=CommentOut)
+@api.post("/new_comment", url_name="new_comment", response=PostOut)
 def new_comment(request: HttpRequest, new_comment: CommentIn):
     """
     Create a new comment on a post.
@@ -122,13 +145,27 @@ def new_comment(request: HttpRequest, new_comment: CommentIn):
         parent_comment = None
         reply = False
 
-    return Comment.objects.create(
+    Comment.objects.create(
         post=post,
         user=request.user,
         text=new_comment.text,
         reply=reply,
         parent_comment=parent_comment,
     )
+    post.refresh_from_db()
+    prefetch_related_objects(
+        [post],
+        Prefetch(
+            "comments", queryset=Comment.objects.select_related().filter(reply=False)
+        ),
+    )
+    post.is_owner = post.user.id == request.user.id  # type: ignore
+    post.is_following = request.user in post.user.followers.all()
+    post.likes = post.liked_by.count()
+    post.liked_by_user = request.user in post.liked_by.all()
+
+    sleep(1)
+    return post
 
 
 @api.get(
@@ -141,21 +178,13 @@ def get_all_posts(request: HttpRequest, page: int):
     """
     Fetch all posts from the database. These posts can be shown to unauthenticated users.
     """
-    user_liked_posts = []
-    if request.user.is_authenticated:
-        user_liked_posts = [post.id for post in request.user.liked_posts.all()]  # type: ignore
-    posts = (
-        Post.objects.select_related("user")
-        .prefetch_related("liked_by", "comments")
-        .order_by("-publication_date")
-        .annotate(likes=Count("liked_by"))
-        .annotate(
-            liked_by_user=Case(When(id__in=user_liked_posts, then=True), default=False)
-        )
-    )
 
-    if len(posts) == 0:
+    posts = get_posts_queryset(request.user)
+
+    if posts is None or posts.exists() is False:
         return 404, {"error": "No posts found."}
+
+    # sleep(20)
 
     return posts_pager(posts, page)
 
@@ -177,59 +206,138 @@ def get_user_posts(request: HttpRequest, page: int, payload: Username = Username
     """
     posts = None
     if payload.username:
-        user_liked_posts = [post.id for post in request.user.liked_posts.all()]  # type: ignore
+        is_owner = Case(When(user__id=request.user.id, then=True), default=False)  # type: ignore
+
+        liked_by_user = Exists(request.user.liked_posts.filter(id=OuterRef("id")))  # type: ignore
+        is_following = Exists(request.user.following.filter(id=OuterRef("user__id")))  # type: ignore
 
         posts = (
-            Post.objects.select_related("user")
-            .prefetch_related("liked_by", "comments")
-            .filter(user__username=payload.username)
-            .annotate(likes=Count("liked_by"))
-            .annotate(
-                liked_by_user=Case(
-                    When(id__in=user_liked_posts, then=True), default=False
-                )
+            Post.objects.select_related()
+            .prefetch_related(
+                Prefetch(
+                    "comments",
+                    queryset=Comment.objects.select_related().filter(reply=False),
+                ),  # filter related "comments" inside the post QuerySet
             )
+            .filter(user__username=payload.username)
+            .order_by("-publication_date")
+            .annotate(is_following=is_following)
+            .annotate(is_owner=is_owner)
+            .annotate(likes=Count("liked_by"))
+            .annotate(liked_by_user=liked_by_user)
         )
 
-    if posts is None or len(posts) == 0:
+    if posts is None or posts.exists() is False:
         return 404, {"error": "No posts found."}
 
     return posts_pager(posts, page)
 
 
-@api.post("/follow", url_name="follow")
+@api.post("/follow", url_name="follow", response=FollowOut)
 def follow(request: HttpRequest, payload: Username):
     username = payload.username
     user = User.objects.get(username=username)
 
     if user in request.user.following.all():  # type: ignore
         request.user.following.remove(user)  # type: ignore
-        return {"message": f"Unfollowed {username}."}
+        return {
+            "message": f"You are no longer following {username}",
+            "is_following": False,
+        }
 
     request.user.following.add(user)  # type: ignore
-    return {"message": f"You are now following {username}."}
+    return {"message": f"You are now following {username}", "is_following": True}
 
 
 @api.get("/following_posts", url_name="following_posts", response=list[PostOut])
 def following_posts(request: HttpRequest):
-    user_liked_posts = [post.id for post in request.user.liked_posts.all()]  # type: ignore
+
+    return get_posts_queryset(request.user)
+
+
+@api.get("/profile/{str:username}", url_name="profile", response=UserOut)
+def profile(request: HttpRequest, username: str):
+    # select_related() only works with foreign key and one-to-one
+    # fields
+
+    is_following = Exists(request.user.following.filter(id=OuterRef("user__id")))  # type: ignore
+    is_owner = Case(When(user__id=request.user.id, then=True), default=False)  # type: ignore
+    liked_by_user = Exists(request.user.liked_posts.filter(id=OuterRef("id")))  # type: ignore
+
+    profile_user = User.objects.prefetch_related(
+        Prefetch(
+            "posts",
+            queryset=Post.objects.select_related()
+            .prefetch_related(
+                Prefetch(
+                    "comments",
+                    queryset=Comment.objects.select_related().filter(reply=False),
+                ),  # filter related "comments" inside the post QuerySet
+            )
+            .order_by("-publication_date")
+            .annotate(is_following=is_following)
+            .annotate(is_owner=is_owner)
+            .annotate(likes=Count("liked_by"))
+            .annotate(liked_by_user=liked_by_user),
+        )
+    ).get(username=username)
+
+    return profile_user
+
+
+# endregion
+
+# -----------
+# region Functions
+# -----------
+def posts_pager(posts, page):
+    p = Paginator(posts, 10)
+    p_page = p.get_page(page)
+
+    try:
+        next_page = p_page.next_page_number()
+    except InvalidPage:
+        next_page = None
+
+    try:
+        previous_page = p_page.previous_page_number()
+    except InvalidPage:
+        previous_page = None
+
+    # Cast "QuerySet" to "list" to be parsed by Pydantic Model
+    return {
+        "numPages": p.num_pages,
+        "nextPage": next_page,
+        "previousPage": previous_page,
+        "posts": list(p_page.object_list),
+    }
+
+
+def get_posts_queryset(user):
+    liked_by_user = Value(False)
+    is_following = Value(False)
+    is_owner = Case(When(user__id=user.id, then=True), default=False)
+    if user.is_authenticated:
+        # Check if the user has liked the post in each row of the query
+        liked_by_user = Exists(user.liked_posts.filter(id=OuterRef("id")))  # type: ignore
+        is_following = Exists(user.following.filter(id=OuterRef("user__id")))  # type: ignore
 
     posts = (
-        Post.objects.filter(user__in=request.user.following.all())  # type: ignore
-        .annotate(likes=Count("liked_by"))
-        .annotate(
-            liked_by_user=Case(When(id__in=user_liked_posts, then=True), default=False)
+        Post.objects.select_related()
+        .prefetch_related(
+            Prefetch(
+                "comments",
+                queryset=Comment.objects.select_related().filter(reply=False),
+            ),  # filter related "comments" inside the post QuerySet
         )
+        .order_by("-publication_date")
+        .annotate(is_following=is_following)
+        .annotate(is_owner=is_owner)
+        .annotate(likes=Count("liked_by"))
+        .annotate(liked_by_user=liked_by_user)
     )
+
     return posts
 
 
-@api.get("/profile", url_name="profile", response=UserOut)
-def profile(request: HttpRequest):
-    # select_related() only works with foreign key and one-to-one fields
-    user = User.objects.prefetch_related(
-        "following", "posts", "liked_posts", "comments", "followers"
-    ).get(
-        id=request.user.id  # type: ignore
-    )
-    return user
+# endregion

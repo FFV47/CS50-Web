@@ -12,7 +12,7 @@
       "label": "parcel",
       "type": "shell",
       "group": "test",
-      "command": "parcel watch",
+      "command": "pnpm parcel watch",
       "problemMatcher": []
     }
   ]

@@ -1,16 +1,17 @@
 from __future__ import annotations
+from datetime import datetime
 
 from re import search
 
-from django.utils import timezone
+# from django.utils import timezone
 from ninja import Field, ModelSchema, Schema
 from pydantic import constr, validator
 
 from .models import Comment, Post, User
 
 
-def format_date(datetime: timezone.datetime):
-    return timezone.localtime(datetime).strftime("%B %d, %Y - %H:%M")
+# def format_date(datetime: timezone.datetime):
+#     return timezone.localtime(datetime).strftime("%B %d, %Y - %H:%M")
 
 
 def must_not_be_html(string):
@@ -24,7 +25,7 @@ class Error(Schema):
 
 
 # ----------
-# * User
+# region User
 # ----------
 
 
@@ -36,10 +37,9 @@ class UserOut(ModelSchema):
     # "..." means the field is required
     firstName: str = Field(..., alias="first_name")
     lastName: str = Field(..., alias="last_name")
-    lastLogin: str = Field(..., alias="last_login")
-    dateJoined: str = Field(..., alias="date_joined")
+    lastLogin: datetime = Field(..., alias="last_login")
+    dateJoined: datetime = Field(..., alias="date_joined")
     posts: list[PostOut] = Field(..., alias="posts")
-    comments: list[CommentOut] = Field(..., alias="comments")
     following: list[Username]
     followers: list[Username] = Field(..., alias="followers")
 
@@ -52,17 +52,16 @@ class UserOut(ModelSchema):
             "email",
         ]
 
-    @staticmethod
-    def resolve_date_joined(obj):
-        return format_date(obj.date_joined)
 
-    @staticmethod
-    def resolve_last_login(obj):
-        return format_date(obj.last_login)
+class FollowOut(Schema):
+    message: str
+    isFollowing: bool = Field(..., alias="is_following")
 
+
+# endregion
 
 # ----------
-# * Post
+# region Post
 # ----------
 
 
@@ -83,44 +82,25 @@ class PostIn(Schema):
 
 class PostOut(ModelSchema):
     username: str = Field(..., alias="user.username")
+    isFollowing: bool = Field(..., alias="is_following")
+    isOwner: bool = Field(..., alias="is_owner")
     likes: int = Field(..., alias="likes")
     likedByUser: bool = Field(False, alias="liked_by_user")
-    publicationDate: str = Field(..., alias="publication_date")
-    lastModified: str = Field(..., alias="last_modified")
+    publicationDate: datetime = Field(..., alias="publication_date")
+    lastModified: datetime = Field(..., alias="last_modified")
     comments: list[CommentOut] = Field(..., alias="comments")
 
     class Config:
         model = Post
         model_fields = ["id", "text", "edited"]
 
-    # obj parameter is the Post object from Django ORM
-    @staticmethod
-    def resolve_publication_date(obj):
-        return format_date(obj.publication_date)
-
-    @staticmethod
-    def resolve_last_modified(obj):
-        return format_date(obj.last_modified)
-
-    @staticmethod
-    def resolve_comments(obj):
-        return obj.comments.filter(reply=False)
-
-    @staticmethod
-    def resolve_liked_by(obj):
-        return [u.username for u in obj.liked_by.all()]
-
 
 class EditedPost(ModelSchema):
-    lastModified: str = Field(..., alias="last_modified")
+    lastModified: datetime = Field(..., alias="last_modified")
 
     class Config:
         model = Post
         model_fields = ["id", "text", "edited"]
-
-    @staticmethod
-    def resolve_last_modified(obj):
-        return format_date(obj.last_modified)
 
 
 class PaginatedPosts(Schema):
@@ -130,32 +110,31 @@ class PaginatedPosts(Schema):
     posts: list[PostOut]
 
 
+# endregion
 # ----------
-# * Comment
+# region Comment
 # ----------
 
 
 class CommentIn(Schema):
     text: constr(strip_whitespace=True)  # type: ignore
-    post_id: int
-    parent_comment_id: int | None
+    post_id: int = Field(..., alias="postID")
+    parent_comment_id: int | None = Field(None, alias="commentID")
 
     block_html = validator("text", allow_reuse=True)(must_not_be_html)
 
 
 class CommentOut(ModelSchema):
     username: str = Field(..., alias="user.username")
-    publicationDate: str = Field(..., alias="publication_date")
+    publicationDate: datetime = Field(..., alias="publication_date")
     replies: list[CommentOut] = Field(..., alias="replies")
 
     class Config:
         model = Comment
         model_fields = ["id", "text"]
 
-    @staticmethod
-    def resolve_publication_date(obj):
-        return format_date(obj.publication_date)
 
+# endregion
 
 # Self-referencing schemes
 UserOut.update_forward_refs()

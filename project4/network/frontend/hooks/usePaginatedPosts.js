@@ -1,5 +1,5 @@
 import { useQuery } from "react-query";
-import axiosAPI from "../axiosAPI";
+import axiosAPI from "../utils/axiosAPI";
 
 const usePaginatedPosts = (queryKey) => {
   const api = new axiosAPI();

@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "react-query";
-import axiosAPI from "../axiosAPI";
+import axiosAPI from "../utils/axiosAPI";
 
 const useEditPost = (queryKey, setUpdating) => {
   const queryClient = useQueryClient();

@@ -1,57 +1,70 @@
-import React, { useEffect, useState, useRef } from "react";
 import PropTypes from "prop-types";
+import React from "react";
+import { Link } from "react-router-dom";
+import { GrCaretNext } from "react-icons/gr";
+import useGlobalContext from "../context/GlobalContext";
 
-import { useNavigate } from "react-router-dom";
+const PageControl = ({ postsQuery }) => {
+  const { urlPage } = useGlobalContext();
 
-const PageControl = ({ urlPage, isPreviousData, nextPage }) => {
-  const [page, setPage] = useState(urlPage);
-  const navigate = useNavigate();
+  const { isPreviousData, data } = postsQuery;
+  const numPages = data?.numPages ? data.numPages : 1;
 
-  // The only difference between useRef() and creating a {current:
-  // ...} object yourself is that useRef will give you the same ref
-  // object on every render.
-  const pageButtonClicked = useRef(false);
+  const pages = [...Array(numPages).keys()].map((i) => i + 1);
 
-  useEffect(() => {
-    // Block navigate until the first click
-    if (pageButtonClicked.current) {
-      navigate(`/${page}`);
-    }
-  }, [page]);
+  const isNextEnabled = !isPreviousData && data?.nextPage ? null : "disabled";
+  const isPreviousDisabled =
+    urlPage === 1 || (data?.previousPage && isPreviousData) ? "disabled" : null;
 
   return (
-    <div className="page-control">
-      <p>Current Page: {page}</p>
-      <button
-        onClick={() => {
-          setPage((old) => Math.max(old - 1, 1));
-          pageButtonClicked.current = true;
-        }}
-        disabled={page === 1}
-      >
-        Previous Page
-      </button>
+    <nav aria-label="page navigation" className="mt-3">
+      <ul className="pagination justify-content-center">
+        <li className={`page-item ${isPreviousDisabled}`}>
+          {isPreviousDisabled === "disabled" ? (
+            <span className="page-link" aria-label="Previous disabled">
+              <GrCaretNext
+                aria-hidden="true"
+                className={`previous ${isPreviousDisabled}`}
+              />
+            </span>
+          ) : (
+            <Link to={`/${data?.previousPage}`} className="page-link">
+              <GrCaretNext
+                aria-hidden="true"
+                className={`previous ${isPreviousDisabled}`}
+              />
+            </Link>
+          )}
+        </li>
 
-      <button
-        onClick={() => {
-          if (!isPreviousData && nextPage) {
-            setPage((old) => old + 1);
-            pageButtonClicked.current = true;
-          }
-        }}
-        // Disable the Next Page button until we know a next page is available
-        disabled={isPreviousData || !nextPage}
-      >
-        Next Page
-      </button>
-    </div>
+        {pages.map((page) => {
+          return (
+            <li key={page} className={`page-item ${page === urlPage ? "active" : null}`}>
+              <Link to={`/${page}`} className="page-link">
+                {page}
+              </Link>
+            </li>
+          );
+        })}
+
+        <li className={`page-item ${isNextEnabled}`}>
+          {isNextEnabled === null ? (
+            <span className="page-link" aria-label="Next disabled">
+              <GrCaretNext aria-hidden="true" className={isNextEnabled} />
+            </span>
+          ) : (
+            <Link to={`/${data?.nextPage}`} className="page-link" aria-label="Next">
+              <GrCaretNext aria-hidden="true" className={isNextEnabled} />
+            </Link>
+          )}
+        </li>
+      </ul>
+    </nav>
   );
 };
 
 PageControl.propTypes = {
-  urlPage: PropTypes.number,
-  isPreviousData: PropTypes.bool,
-  nextPage: PropTypes.number,
+  postsQuery: PropTypes.object,
 };
 
 export default PageControl;

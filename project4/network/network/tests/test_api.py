@@ -1,10 +1,7 @@
-import json
-
 import pytest
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
-
 from network.models import Comment, Post, User
 
 
@@ -87,7 +84,6 @@ class APITest(TestCase):
         self.assertEqual(response.status_code, 200)
 
         json_resp = response.json()
-        print(json.dumps(json_resp, indent=2))
 
         self.assertEqual(json_resp["numPages"], 3)
         self.assertEqual(json_resp["nextPage"], 3)
@@ -106,7 +102,7 @@ class APITest(TestCase):
         )
 
         self.assertEqual(response.status_code, 401)
-        print(response.json())
+
         self.assertEqual(
             response.json()["detail"],
             "Unauthorized",
@@ -125,6 +121,19 @@ class APITest(TestCase):
         self.assertEqual(json_resp["nextPage"], None)
         self.assertEqual(json_resp["previousPage"], None)
         self.assertEqual(len(json_resp["posts"]), 1)
+
+    def test_profile_route(self):
+        url = reverse("network:api:profile", args=["user1"])
+        self.client.login(username="user1", password="password")
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+
+        resp_json = response.json()
+
+        print(resp_json)
+
+        # raise Exception("")
 
     def test_following_posts(self):
 
@@ -158,11 +167,13 @@ class APITest(TestCase):
         self.assertEqual(self.user1.posts.count(), 2)
 
         resp_json = response.json()
+
         self.assertEqual(resp_json["id"], 3)
         self.assertEqual(resp_json["text"], "Hello World")
         self.assertEqual(resp_json["edited"], False)
         self.assertEqual(resp_json["username"], "user1")
         self.assertEqual(resp_json["likes"], 1)
+        self.assertListEqual(resp_json["comments"], [])
 
     def test_new_post_length(self):
         """
@@ -220,26 +231,43 @@ class APITest(TestCase):
         self.assertNotIn(self.user1, self.post1.liked_by.all())
 
     def test_new_comment(self):
+        """
+        Test if a new comment was published on the correct post
+        """
         self.client.login(username="user1", password="password")
 
         url = reverse("network:api:new_comment")
 
         response = self.client.post(
             url,
-            {"text": "Hello World", "post_id": self.post1.id},
+            {"text": "Hello World", "postID": self.post1.id},
             content_type="application/json",
         )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.user1.comments.count(), 4)
 
+        # Returns Post object
         resp_json = response.json()
-        # user1 has 4 comments and user2 has 1 comment
-        self.assertEqual(resp_json["id"], 5)
-        self.assertEqual(resp_json["text"], "Hello World")
+
+        # Post 1 has 2 comments that are not replies
+        self.assertEqual(resp_json["id"], 1)
+        self.assertEqual(resp_json["text"], "post 1")
+        self.assertEqual(resp_json["edited"], False)
         self.assertEqual(resp_json["username"], "user1")
-        self.assertEqual(resp_json["publicationDate"], format_date(timezone.now()))
-        self.assertListEqual(resp_json["replies"], [])
+        self.assertEqual(resp_json["likes"], 0)
+        self.assertEqual(resp_json["likedByUser"], False)
+        self.assertEqual(len(resp_json["comments"]), 3)
+
+        # In total there were 4 comments (Post 2 has 1 comment)
+        # The first comment must be the new one
+        self.assertEqual(resp_json["comments"][0]["id"], 5)
+        self.assertEqual(resp_json["comments"][0]["text"], "Hello World")
+        self.assertEqual(resp_json["comments"][0]["username"], "user1")
+        # self.assertEqual(
+        #     resp_json["comments"][0]["publicationDate"], format_date(timezone.now())
+        # )
+        self.assertListEqual(resp_json["comments"][0]["replies"], [])
 
     def test_follow_user(self):
         self.client.login(username="user1", password="password")
@@ -257,8 +285,9 @@ class APITest(TestCase):
 
         resp_json = response.json()
         self.assertEqual(
-            resp_json["message"], f"You are now following {self.user2.username}."
+            resp_json["message"], f"You are now following {self.user2.username}"
         )
+        self.assertEqual(resp_json["isFollowing"], True)
 
         self.assertNotIn(self.user2, self.user1.followers.all())
 
@@ -271,4 +300,7 @@ class APITest(TestCase):
         self.assertNotIn(self.user1, self.user2.followers.all())
 
         resp_json = response.json()
-        self.assertEqual(resp_json["message"], f"Unfollowed {self.user2.username}.")
+        self.assertEqual(
+            resp_json["message"], f"You are no longer following {self.user2.username}"
+        )
+        self.assertEqual(resp_json["isFollowing"], False)

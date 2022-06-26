@@ -1,34 +1,58 @@
-import React, { useState } from "react";
 import PropTypes from "prop-types";
+import React, { useEffect, useId, useRef, useState } from "react";
+import useGlobalContext from "../context/GlobalContext";
 import useEditPost from "../hooks/useEditPost";
 
-const EditPost = ({ post, postsQueryKey, setIsEditingPost }) => {
-  const [postText, setPostText] = useState(post.text);
+const EditPost = ({ post, setIsEditingPost }) => {
+  const [text, setText] = useState(post.text);
   const [updating, setUpdating] = useState(false);
+  const { postsQueryKey } = useGlobalContext();
 
   const editPostMutation = useEditPost(postsQueryKey, setUpdating);
 
+  const formEl = useRef(null);
+  const id = useId();
+
+  const handleEdit = (e) => {
+    e.preventDefault();
+    setUpdating(true);
+    if (text.trim().length > 0) {
+      editPostMutation.mutate(
+        { postID: post.id, text: text },
+        {
+          onSuccess: () => {
+            setUpdating(false);
+            setIsEditingPost(false);
+          },
+        }
+      );
+    }
+  };
+
+  useEffect(() => {
+    formEl.current.selectionStart = formEl.current.selectionEnd = text.length;
+    formEl.current.focus();
+  }, []);
+
+  useEffect(() => {
+    formEl.current.style.height = "inherit";
+    formEl.current.style.height = `${formEl.current.scrollHeight}px`;
+  });
+
   return (
-    <form
-      className="form-floating mt-2 mb-2"
-      onSubmit={async (e) => {
-        e.preventDefault();
-        setUpdating(true);
-        await editPostMutation.mutateAsync({ postID: post.id, text: postText });
-        setIsEditingPost(false);
-      }}
-    >
+    <form className="form-floating mt-2 mb-2" onSubmit={handleEdit}>
       <textarea
-        name="text"
-        id="post-text"
+        ref={formEl}
+        name="edit-text"
+        id={id}
         cols="30"
-        rows="3"
-        className="form-control mt-4"
+        rows="1"
+        className="form-control mt-4 post-textarea"
         placeholder="What's on your mind?"
-        value={postText}
-        onChange={(e) => setPostText(e.target.value)}
+        value={text}
+        onChange={(e) => setText(e.target.value)}
       ></textarea>
-      <label htmlFor="post-text">Edit Post</label>
+      <label htmlFor={id}>Edit Post</label>
       <button type="submit" className="btn btn-primary btn-sm mt-3">
         {!updating ? "Update Post" : "Updating..."}
       </button>
@@ -40,7 +64,6 @@ EditPost.propTypes = {
     id: PropTypes.number,
     text: PropTypes.string,
   }),
-  postsQueryKey: PropTypes.array,
   setIsEditingPost: PropTypes.func,
 };
 export default EditPost;

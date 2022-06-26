@@ -1,10 +1,10 @@
 import { useMutation, useQueryClient } from "react-query";
-import axiosAPI from "../axiosAPI";
+import axiosAPI from "../utils/axiosAPI";
 
 const useLike = (queryKey) => {
   const queryClient = useQueryClient();
 
-  const likePost = async ({ postID }) => {
+  const likePost = async (postID) => {
     const api = new axiosAPI();
 
     const response = await api.patch(`/api/like_post/${postID}`);
@@ -20,7 +20,7 @@ const useLike = (queryKey) => {
      * "data" is the response data from the API. The second argument
      * is the object that the "mutate" function receives
      */
-    onSuccess: (data, { postID }) => {
+    onSuccess: (data, postID) => {
       queryClient.setQueryData(queryKey, (oldData) => {
         const newData = { ...oldData };
         const post = newData.posts.find((post) => post.id === postID);

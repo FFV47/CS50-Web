@@ -10,7 +10,7 @@ def index(request: HttpRequest):
     context = {
         "user_info": {
             "logged_in": request.user.is_authenticated,
-            "username": request.user.username,
+            "username": request.user.username,  # type: ignore
         }
     }
     return render(request, "network/index.html", context)
