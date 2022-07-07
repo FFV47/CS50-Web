@@ -16,11 +16,17 @@ const useNewComment = (queryKey) => {
   };
 
   const mutation = useMutation(newPost, {
-    onSuccess: async (data, { postID }) => {
+    onSuccess: (data, { postID }) => {
       queryClient.setQueryData(queryKey, (oldData) => {
         const newData = { ...oldData };
-        const index = newData.posts.findIndex((post) => post.id === postID);
-        newData.posts[index] = data;
+        let index;
+        if (/profile/.test(window.location.pathname)) {
+          index = newData.postsData.posts.findIndex((post) => post.id === postID);
+          newData.postsData.posts[index] = data;
+        } else {
+          index = newData.posts.findIndex((post) => post.id === postID);
+          newData.posts[index] = data;
+        }
         return newData;
       });
     },

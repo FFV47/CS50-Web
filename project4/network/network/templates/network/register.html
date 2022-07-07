@@ -6,6 +6,7 @@
     <div class="card">
       <div class="card-body">
         {% if message %}<div>{{ message }}</div>{% endif %}
+
         <form action="{% url 'network:register' %}" method="post" class="mb-3">
           {% csrf_token %}
           <div class="form-group mb-3">

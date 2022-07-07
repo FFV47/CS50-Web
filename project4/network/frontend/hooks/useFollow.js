@@ -7,7 +7,7 @@ const useFollow = (queryKey) => {
   const followUser = async ({ username }) => {
     const api = new axiosAPI();
 
-    const response = await api.post("/api/follow", { username });
+    const response = await api.post(`/api/follow/${username}`);
     if (response.data) {
       return response.data;
     }
@@ -17,13 +17,18 @@ const useFollow = (queryKey) => {
 
   const mutation = useMutation(followUser, {
     onSuccess: (data, { postID }) => {
-      if (!postID) return;
-      queryClient.setQueryData(queryKey, (oldData) => {
-        const newData = { ...oldData };
-        const post = newData.posts.find((post) => post.id === postID);
-        post.isFollowing = data.isFollowing;
-        return newData;
-      });
+      if (postID) {
+        queryClient.setQueryData(queryKey, (oldData) => {
+          const newData = { ...oldData };
+          const post = newData.posts.find((post) => post.id === postID);
+          post.isFollowing = data.isFollowing;
+          return newData;
+        });
+      } else {
+        queryClient.setQueryData(queryKey, (oldData) => {
+          return { ...oldData, isFollowing: data.isFollowing };
+        });
+      }
     },
   });
 

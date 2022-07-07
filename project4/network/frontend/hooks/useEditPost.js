@@ -19,7 +19,12 @@ const useEditPost = (queryKey, setUpdating) => {
     onSuccess: (data) => {
       queryClient.setQueryData(queryKey, (oldData) => {
         const newData = { ...oldData };
-        const post = newData.posts.find((post) => post.id === data.id);
+        let post;
+        if (/profile/.test(window.location.pathname)) {
+          post = newData.postsData.posts.find((post) => post.id === data.id);
+        } else {
+          post = newData.posts.find((post) => post.id === data.id);
+        }
         post.text = data.text;
         post.edited = data.edited;
         post.lastModified = data.lastModified;

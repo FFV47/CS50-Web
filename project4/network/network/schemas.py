@@ -20,37 +20,40 @@ def must_not_be_html(string):
     return string
 
 
-class Error(Schema):
-    error: str
-
-
 # ----------
 # region User
 # ----------
 
 
-class Username(Schema):
-    username: str | None = None
-
-
 class UserOut(ModelSchema):
     # "..." means the field is required
-    firstName: str = Field(..., alias="first_name")
-    lastName: str = Field(..., alias="last_name")
     lastLogin: datetime = Field(..., alias="last_login")
     dateJoined: datetime = Field(..., alias="date_joined")
-    posts: list[PostOut] = Field(..., alias="posts")
-    following: list[Username]
-    followers: list[Username] = Field(..., alias="followers")
+    followingCount: int = Field(..., alias="following.count")
+    followersCount: int = Field(..., alias="followers.count")
+    isFollowing: bool = Field(..., alias="is_following")
+    postsData: PaginatedPosts = Field(..., alias="posts_data")
 
     class Config:
         model = User
         model_fields = [
-            "id",
             "username",
+            "about",
             "photo",
             "email",
         ]
+
+
+class UserProfileIn(Schema):
+    username: constr(strip_whitespace=True, min_length=3, max_length=20)  # type: ignore
+    about: constr(strip_whitespace=True, max_length=200)  # type: ignore
+    email: constr(strip_whitespace=True)  # type: ignore
+
+
+class UserProfileOut(ModelSchema):
+    class Config:
+        model = User
+        model_fields = ["username", "email", "photo", "about"]
 
 
 class FollowOut(Schema):
@@ -73,10 +76,10 @@ class PostIn(Schema):
 
     @validator("text")
     def text_size(cls, value):
-        if len(value) < 5:
-            raise ValueError("Post must be at least 5 characters long.")
-        if len(value) > 280:
-            raise ValueError("Post must be at most 280 characters long.")
+        if len(value) < 3:
+            raise ValueError("Post must be at least 3 characters long.")
+        if len(value) > 200:
+            raise ValueError("Post must be at most 200 characters long.")
         return value
 
 
@@ -117,7 +120,7 @@ class PaginatedPosts(Schema):
 
 
 class CommentIn(Schema):
-    text: constr(strip_whitespace=True)  # type: ignore
+    text: constr(strip_whitespace=True, max_length=200, min_length=3)  # type: ignore
     post_id: int = Field(..., alias="postID")
     parent_comment_id: int | None = Field(None, alias="commentID")
 

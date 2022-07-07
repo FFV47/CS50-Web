@@ -23,7 +23,12 @@ const useLike = (queryKey) => {
     onSuccess: (data, postID) => {
       queryClient.setQueryData(queryKey, (oldData) => {
         const newData = { ...oldData };
-        const post = newData.posts.find((post) => post.id === postID);
+        let post;
+        if (/profile/.test(window.location.pathname)) {
+          post = newData.postsData.posts.find((post) => post.id === postID);
+        } else {
+          post = newData.posts.find((post) => post.id === postID);
+        }
         post.likes = data.likes;
         post.likedByUser = data.likedByUser;
         return newData;

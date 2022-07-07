@@ -90,40 +90,8 @@ class APITest(TestCase):
         self.assertEqual(json_resp["previousPage"], 1)
         self.assertEqual(len(json_resp["posts"]), 10)
 
-    def test_user_posts(self):
-        """
-        Test if all posts from one user are returned, when user is
-        logged in
-        """
-        url = reverse("network:api:user_posts", args=[1])
-
-        response = self.client.post(
-            url, {"username": self.user1.username}, content_type="application/json"
-        )
-
-        self.assertEqual(response.status_code, 401)
-
-        self.assertEqual(
-            response.json()["detail"],
-            "Unauthorized",
-        )
-
-        self.client.login(username="user1", password="password")
-        url = reverse("network:api:user_posts", args=[1])
-        response = self.client.post(
-            url, {"username": self.user1.username}, content_type="application/json"
-        )
-
-        self.assertEqual(response.status_code, 200)
-
-        json_resp = response.json()
-
-        self.assertEqual(json_resp["nextPage"], None)
-        self.assertEqual(json_resp["previousPage"], None)
-        self.assertEqual(len(json_resp["posts"]), 1)
-
     def test_profile_route(self):
-        url = reverse("network:api:profile", args=["user1"])
+        url = reverse("network:api:profile", args=["user1", "1"])
         self.client.login(username="user1", password="password")
         response = self.client.get(url)
 
@@ -145,13 +113,16 @@ class APITest(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
-        url = reverse("network:api:following_posts")
+        url = reverse("network:api:following_posts", args=["1"])
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
         resp_json = response.json()
-        self.assertIn(self.user2.username, resp_json[0]["username"])
-        self.assertIn(self.post2.text, resp_json[0]["text"])
+
+        print(resp_json)
+        self.assertEqual(self.user2.username, resp_json["posts"][0]["username"])
+        self.assertEqual(self.post2.text, resp_json["posts"][0]["text"])
+        self.assertEqual(True, resp_json["posts"][0]["isFollowing"])
 
     def test_new_post(self):
         """

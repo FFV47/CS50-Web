@@ -4,12 +4,11 @@ axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
 class axiosAPI {
-  constructor(baseURL, headers) {
+  constructor(baseURL) {
     this.controller = new AbortController();
     this.instance = axios.create({
       baseURL: baseURL ? baseURL : "",
       signal: this.controller.signal,
-      headers: headers ? headers : {},
     });
     this.response = null;
     this.data = null;
@@ -26,12 +25,12 @@ class axiosAPI {
       this.error = axiosAPI.apiError(error);
     }
 
-    return { data: this.data, errorMessage: this.error };
+    return { data: this.data, error: this.error };
   };
 
-  post = async (url, data) => {
+  post = async (url, data, headers) => {
     try {
-      this.response = await this.instance.post(url, data);
+      this.response = await this.instance.post(url, data, headers);
       if (this.response) {
         this.data = this.response.data;
       }
@@ -39,12 +38,12 @@ class axiosAPI {
       this.error = axiosAPI.apiError(error);
     }
 
-    return { data: this.data, errorMessage: this.error };
+    return { data: this.data, error: this.error };
   };
 
-  put = async (url, data) => {
+  put = async (url, data, headers) => {
     try {
-      this.response = await this.instance.put(url, data);
+      this.response = await this.instance.put(url, data, headers);
       if (this.response) {
         this.data = this.response.data;
       }
@@ -52,7 +51,7 @@ class axiosAPI {
       this.error = axiosAPI.apiError(error);
     }
 
-    return { data: this.data, errorMessage: this.error };
+    return { data: this.data, error: this.error };
   };
 
   delete = async (url) => {
@@ -65,12 +64,12 @@ class axiosAPI {
       this.error = axiosAPI.apiError(error);
     }
 
-    return { data: this.data, errorMessage: this.error };
+    return { data: this.data, error: this.error };
   };
 
-  patch = async (url, data) => {
+  patch = async (url, data, headers) => {
     try {
-      this.response = await this.instance.patch(url, data);
+      this.response = await this.instance.patch(url, data, headers);
       if (this.response) {
         this.data = this.response.data;
       }
@@ -78,7 +77,7 @@ class axiosAPI {
       this.error = axiosAPI.apiError(error);
     }
 
-    return { data: this.data, errorMessage: this.error };
+    return { data: this.data, error: this.error };
   };
 
   abort = () => {
@@ -86,11 +85,13 @@ class axiosAPI {
   };
 
   static apiError = (error) => {
-    let message = "";
+    let message;
+    let data = null;
     if (error.response) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx
       message = `Server responded. Error: ${error.message}`;
+      data = error.response.data;
     } else if (error.request) {
       // The request was made but no response was received
       // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
@@ -98,11 +99,10 @@ class axiosAPI {
       message = `No response received from the server. Error: ${error.message}`;
     } else {
       // Something happened in setting up the request that triggered an Error
-      console.log("Error", error.message);
       message = `Request error: ${error.message}`;
     }
 
-    return message;
+    return { data, message };
   };
 }
 

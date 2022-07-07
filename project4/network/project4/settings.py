@@ -34,11 +34,12 @@ LOGIN_URL = "/login"
 # Application definition
 
 INSTALLED_APPS = [
-    "network",
+    "network.apps.NetworkConfig",
     "whitenoise.runserver_nostatic",
     "ninja",
-    "debug_toolbar",
-    "django_browser_reload",
+    # "debug_toolbar",
+    # "django_browser_reload",
+    "django_extensions",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -56,8 +57,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django_browser_reload.middleware.BrowserReloadMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    # "django_browser_reload.middleware.BrowserReloadMiddleware",
+    # "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = "project4.urls"

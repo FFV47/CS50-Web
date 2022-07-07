@@ -8,10 +8,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="" />
     <link href="{% static 'network/index.css' %}" rel="stylesheet" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500&family=Inter&family=Rubik:wght@400;500&display=swap"
-          rel="stylesheet">
+          rel="stylesheet"/>
     <title>
       {% block title %}
         Social Network
@@ -21,12 +21,11 @@
     {% block scripts %}
     {% endblock scripts %}
 
-    {% comment %} {{ user.is_authenticated|json_script:"djangoUser" }} {% endcomment %}
   </head>
   <body>
-    <nav class="navbar navbar-expand-md navbar-dark bg-navbar nav-pills">
+    <nav class="navbar navbar-expand-md navbar-dark bg-navbar nav-pills sticky-top">
       <div class="container-fluid justify-content-center">
-        <a class="navbar-brand" href="#">Social Network</a>
+        <a class="navbar-brand" href="/">Social Network</a>
         <button class="navbar-toggler"
                 type="button"
                 data-bs-toggle="collapse"
@@ -39,43 +38,43 @@
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
           <div class="navbar-nav">
             {% if user.is_authenticated %}
-              <a class="nav-link" href="/profile"><strong>{{ user.username }}</strong></a>
-            {% endif %}
+            <a class="nav-link" href="/profile/{{ user.username }}"><strong>{{ user.username }}</strong></a
+            >
+          {% endif %}
 
-            {% url 'network:index' as index_url %}
-            {% if request.path == index_url %}
-              <a class="nav-link active" href="{% url 'network:index' %}">All Posts</a>
-            {% else %}
-              <a class="nav-link" href="{% url 'network:index' %}">All Posts</a>
-            {% endif %}
+          <a class="nav-link" href="{% url 'network:index' %}">All Posts</a>
+          {% comment %} {% endcomment %}
+          {% if user.is_authenticated %}
+            <a class="nav-link" href="/following">Following</a>
+            <form action="{% url 'network:logout' %}" method="post">
+              {% csrf_token %}
+            <a class="nav-link" href="logout" onclick="this.parentNode.submit();">Log Out</a
+            >
+          </form>
+        {% else %}
+          {% url 'network:login' as login_url %}
+          {% if request.path == login_url %}
+            <a class="nav-link active" href="{% url 'network:login' %}">Log In</a>
+          {% else %}
+            <a class="nav-link" href="{% url 'network:login' %}">Log In</a>
+          {% endif %}
 
-            {% if user.is_authenticated %}
-              <a class="nav-link" href="/following">Following</a>
-              <a class="nav-link" href="{% url 'network:logout' %}">Log Out</a>
-            {% else %}
-              {% url 'network:login' as login_url %}
-              {% if request.path == login_url %}
-                <a class="nav-link active" href="{% url 'network:login' %}">Log In</a>
-              {% else %}
-                <a class="nav-link" href="{% url 'network:login' %}">Log In</a>
-              {% endif %}
+          {% url 'network:register' as register_url %}
+          {% if request.path == register_url %}
+            <a class="nav-link active" href="{% url 'network:register' %}">Register</a>
+          {% else %}
+            <a class="nav-link" href="{% url 'network:register' %}">Register</a>
+          {% endif %}
+        {% endif %}
 
-              {% url 'network:register' as register_url %}
-              {% if request.path == register_url %}
-                <a class="nav-link active" href="{% url 'network:register' %}">Register</a>
-              {% else %}
-                <a class="nav-link" href="{% url 'network:register' %}">Register</a>
-              {% endif %}
-            {% endif %}
-
-          </div>
-        </div>
       </div>
-    </nav>
-    <div class="body">
-      {% block body %}
-      {% endblock body %}
-
     </div>
-  </body>
+  </div>
+</nav>
+<div class="body">
+  {% block body %}
+  {% endblock body %}
+
+</div>
+</body>
 </html>

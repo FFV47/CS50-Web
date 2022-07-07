@@ -1,9 +1,9 @@
-import React, { useState, useId } from "react";
+import { useState, useId } from "react";
 import useNewPost from "../hooks/useNewPost";
-import useGlobalContext from "../context/GlobalContext";
+import useDataContext from "../context/DataContext";
 
 const NewPost = () => {
-  const { postsQueryKey } = useGlobalContext();
+  const { postsQueryKey } = useDataContext();
   const [text, setText] = useState("");
   const newPostMutation = useNewPost(postsQueryKey);
   const id = useId();
@@ -21,11 +21,15 @@ const NewPost = () => {
   };
 
   return (
-    <form className="card mx-3 mt-3" onSubmit={handleSubmit}>
+    <form className="card round-card shadow mx-3 mt-3" onSubmit={handleSubmit}>
       <div className="card-body d-flex flex-column align-items-center">
-        <h3>
+        {/* <h3>
           <label htmlFor={id}>New Post</label>
-        </h3>
+        </h3> */}
+
+        <label htmlFor={id} className="h3">
+          New Post
+        </label>
         <textarea
           name="post-text"
           id={id}
@@ -35,6 +39,7 @@ const NewPost = () => {
           value={text}
           onChange={(e) => setText(e.target.value)}
         ></textarea>
+
         <button className="btn btn-primary mt-2" type="submit">
           Post
         </button>

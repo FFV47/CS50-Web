@@ -2,20 +2,22 @@ from django.contrib.auth import authenticate, login, logout
 from django.forms import ValidationError
 from django.http import HttpRequest
 from django.shortcuts import redirect, render
-
+from django.views.decorators.http import require_POST, require_GET, require_http_methods
 from .models import User
 
 
+@require_GET
 def index(request: HttpRequest):
     context = {
         "user_info": {
-            "logged_in": request.user.is_authenticated,
+            "auth": request.user.is_authenticated,
             "username": request.user.username,  # type: ignore
         }
     }
     return render(request, "network/index.html", context)
 
 
+@require_http_methods(["GET", "POST"])
 def login_view(request: HttpRequest):
     if request.method == "POST":
 
@@ -38,11 +40,13 @@ def login_view(request: HttpRequest):
         return render(request, "network/login.html", {"page": "login"})
 
 
+@require_POST
 def logout_view(request: HttpRequest):
     logout(request)
     return redirect("network:index")
 
 
+@require_http_methods(["GET", "POST"])
 def register(request: HttpRequest):
     if request.method == "POST":
         # Ensure password matches confirmation
